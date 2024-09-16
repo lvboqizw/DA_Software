@@ -1,3 +1,5 @@
+#include <Adafruit_MAX31865.h>
+#include <PID_v1_bc.h>
 #include <SoftwareSerial.h>
 
 SoftwareSerial BTSerial (2, 3); // RX, TX
@@ -31,12 +33,13 @@ void setup() {
 void loop() {
 
   vibration(vibPin, vib);
+  pidHeat(heatPin, heat);
 
-  if (heat) {
-    digitalWrite(heatPin, HIGH);
-  } else {
-    digitalWrite(heatPin, LOW);
-  }
+  // if (heat) {
+  //   digitalWrite(heatPin, HIGH);
+  // } else {
+  //   digitalWrite(heatPin, LOW);
+  // }
 
   if (rec) {
     digitalWrite(recPin, HIGH);

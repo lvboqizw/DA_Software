@@ -6,8 +6,8 @@ void btRecv() {
     String recData = BTSerial.readStringUntil('\n');
     recData.trim();
 
-    Serial.print("Received: ");
-    Serial.println(recData);
+    // Serial.print("Received: ");
+    // Serial.println(recData);
 
     String tokens[MAX_TOKENS];
     int tokenCount = split(recData, tokens);
@@ -21,6 +21,7 @@ void btRecv() {
       frequency = tokens[2].toInt();
       test = tokens[3].toInt();
       setFrequency(frequency);
+      setHeater(temperature);
     } else if (tokens[0] == "H") {
       heat = !heat;
     } else if (tokens[0] == "V") {
