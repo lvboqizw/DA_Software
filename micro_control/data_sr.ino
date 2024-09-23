@@ -1,13 +1,12 @@
 #define MAX_TOKENS 4
 
-
 void btRecv() {
   if (BTSerial.available()) {
     String recData = BTSerial.readStringUntil('\n');
     recData.trim();
 
-    // Serial.print("Received: ");
-    // Serial.println(recData);
+    Serial.print("Received: ");
+    Serial.println(recData);
 
     String tokens[MAX_TOKENS];
     int tokenCount = split(recData, tokens);
@@ -20,12 +19,12 @@ void btRecv() {
       temperature = tokens[1].toInt();
       frequency = tokens[2].toInt();
       test = tokens[3].toInt();
-      setFrequency(frequency);
-      setHeater(temperature);
+      set_freq(frequency);
+      set_temp(temperature);
     } else if (tokens[0] == "H") {
-      heat = !heat;
+      ifHeat = !ifHeat;
     } else if (tokens[0] == "V") {
-      vib = !vib;
+      ifVib = !ifVib;
     }
   }
 }
