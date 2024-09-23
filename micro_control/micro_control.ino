@@ -1,51 +1,77 @@
+#include <MsTimer2.h>
 #include <Adafruit_MAX31865.h>
-#include <PID_v1_bc.h>
+#include <PID_v1.h>
 #include <SoftwareSerial.h>
 
+#define DEFAULT_TEMPERATURE 43
+#define DEFAULT_FREQUENCY 177
+#define DEFAULT_TEST 1
+#define DEFAULT_STRENGTH 50
+
 SoftwareSerial BTSerial (2, 3); // RX, TX
+Adafruit_MAX31865 max = Adafruit_MAX31865(6);
 
-const int recPin = 8;
-const int heatPin = 6;
-const int vibPin = 5;
+const int heatPin = 10;
+const int vibPin = 9;
 
-bool vib = false;
-bool heat = false;
-bool rec = false;
+bool ifVib = false;
+bool ifHeat = false;
+bool ifTimer = false;
 
 int temperature;
 int frequency;
 int test;
 
+unsigned long preMillis = 0;
+unsigned long duration = 500;
+
 void setup() {
-  // put your setup code here, to run once:
   Serial.begin(9600);
   BTSerial.begin(115200);
-
-  pinMode(recPin, OUTPUT);
+  
   pinMode(heatPin, OUTPUT);
-  pinMode(vibPin, OUTPUT);
-
-  digitalWrite(recPin, LOW);
   digitalWrite(heatPin, LOW);
+
+  pinMode(vibPin, OUTPUT);
   digitalWrite(vibPin, LOW);
+
+  init_frq(DEFAULT_FREQUENCY);
+  init_heat(DEFAULT_TEMPERATURE);
+  init_vib(DEFAULT_STRENGTH);
 }
 
 void loop() {
-
-  vibration(vibPin, vib);
-  pidHeat(heatPin, heat);
-
-  // if (heat) {
-  //   digitalWrite(heatPin, HIGH);
-  // } else {
-  //   digitalWrite(heatPin, LOW);
-  // }
-
-  if (rec) {
-    digitalWrite(recPin, HIGH);
+  if (ifVib) {
+    vibration();
   } else {
-    digitalWrite(recPin, LOW);
+    stop_vibration();
+  }
+
+  if (ifHeat) {
+    if (millis() - preMillis >= duration) {
+      heat();
+      preMillis = millis();
+    }
+  } else {
+    stop_heat();
   }
 
   btRecv();
+}
+
+void analogInput() {
+  // int sensorValue = analogRead(A0);
+  // // // 将模拟输入值转换为电压
+  // float voltage = sensorValue * (5.0 / 1023.0);
+  // // 打印电压值到串行监视器
+
+  int sensorTem = analogRead(A1);
+  float temp = sensorTem * (5.0 / 1023.0);
+
+  // Serial.print("Voltage:");
+  // Serial.println(voltage);
+  Serial.print("PID:");
+  Serial.println(temp);
+  // 每100毫秒读取一次
+  // delay(100);
 }

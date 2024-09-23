@@ -1,22 +1,18 @@
-unsigned long highLowTime = 2820;
-unsigned long preSigMillis = 0;
-bool signalState = LOW;
+float strength = 0;
 
-void setFrequency(int frequency) {
-  highLowTime = 500000 / frequency;  // (1000000 / frequecy) / 2
+void init_vib(int strength_int) {
+  set_strength(strength_int);
 }
 
-void vibration(int vibPin, bool vib) {
-  if (vib) {
-    unsigned long currentMillis = micros();
-    if (currentMillis - preSigMillis >= highLowTime) {
-      preSigMillis = currentMillis;
-      signalState = !signalState;
-      digitalWrite(vibPin, signalState);
-    }
-  } else {
-    signalState = LOW;
-    digitalWrite(vibPin, signalState);
-  }
+void set_strength(int strength_int) {
+  strength = (float)strength_int / 100;
+}
+
+void vibration() {
+  OCR1A = ICR1 * strength;
+}
+
+void stop_vibration() {
+  OCR1A = 0;
 }
 
