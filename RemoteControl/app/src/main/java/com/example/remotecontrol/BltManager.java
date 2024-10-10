@@ -7,7 +7,6 @@ import android.bluetooth.BluetoothSocket;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
-import android.widget.Toast;
 
 
 import java.io.IOException;
@@ -133,23 +132,33 @@ public class BltManager {
     }
 
     public void sendMessageRetry(String message) {
+        int checkSum = getCheckSum(message);
+        String bag = String.format("%02X", checkSum) + message;
         new Thread(() -> {
             boolean ackReceived = false;
             while (!ackReceived && isConnected) {
                 try {
-                    sendMessage(message);
+                    sendMessage(bag);
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     Log.e("BluetoothError", "sendMessageRetry: Thread sleep Failed", e);
                 }
-                //ackReceived = checkForAck();
+                ackReceived = checkForAck();
             }
         }).start();
     }
 
     private boolean checkForAck() {
         // TODO: Check ACK
-        return false;
+        return true;
+    }
+
+    int getCheckSum(String message) {
+        int checksum = 0;
+        for (int i = 0; i < message.length(); i ++) {
+            checksum += message.charAt(i);
+        }
+        return checksum & 0xFF;
     }
 
     private void handleDisconnection() {
@@ -171,5 +180,4 @@ public class BltManager {
     private void notifyMessageReceived(String message) {
         //handler.post(() -> callback.onMessageReceived(message));
     }
-
 }

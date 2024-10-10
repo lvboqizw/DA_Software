@@ -2,13 +2,11 @@ package com.example.remotecontrol;
 
 import android.os.Bundle;
 import android.widget.Button;
+import android.widget.SeekBar;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 public class MainActivity extends AppCompatActivity
         implements BltManager.BluetoothCallback {
@@ -33,6 +31,25 @@ public class MainActivity extends AppCompatActivity
                 bluetoothManager.connect(DEVICE_MAC_ADDRESS);
             } else {
                 bluetoothManager.disconnect();
+            }
+        });
+
+        SeekBar seekBar = findViewById(R.id.skBar_temperature);
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+//                bluetoothManager.sendMessageRetry(String.valueOf(progress));
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                int progress = seekBar.getProgress();
+                bluetoothManager.sendMessageRetry(String.valueOf(progress));
             }
         });
 
@@ -67,5 +84,4 @@ public class MainActivity extends AppCompatActivity
                 "Message: " + message,
                 Toast.LENGTH_SHORT).show());
     }
-
 }
