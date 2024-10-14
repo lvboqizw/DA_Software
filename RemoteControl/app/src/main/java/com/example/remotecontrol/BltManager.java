@@ -8,7 +8,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -31,6 +30,7 @@ public class BltManager {
 
     private BluetoothCallback callback;
     private boolean isConnected = false;
+    private boolean getAnACK = false;
 
     private Handler handler = new Handler(Looper.getMainLooper());
 
@@ -96,11 +96,10 @@ public class BltManager {
                 try {
                     bytes = inputStream.read(buffer);
                     String receivedMessage = new String(buffer, 0, bytes);
-                    //notifyMessageReceived(receivedMessage);
 
-//                    if (receivedMessage.equals("ACK")) {
-                        //handler.post(() -> callback.onMessageReceived("ACK received"));
-//                    }
+                    if (receivedMessage.equals("ACK")) {
+                        getAnACK = true;
+                    }
                 } catch (IOException e) {
                     Log.e("BluetoothError", "Listen Message Failed", e);
                     handleDisconnection();
@@ -149,8 +148,11 @@ public class BltManager {
     }
 
     private boolean checkForAck() {
-        // TODO: Check ACK
-        return true;
+        if (getAnACK) {
+            getAnACK = false;
+            return true;
+        }
+        return false;
     }
 
     int getCheckSum(String message) {
@@ -175,9 +177,5 @@ public class BltManager {
 
     private void notifyConnectionStatus(boolean isConnected) {
         handler.post(() -> callback.onConnectionStatusChanged(isConnected));
-    }
-
-    private void notifyMessageReceived(String message) {
-        //handler.post(() -> callback.onMessageReceived(message));
     }
 }

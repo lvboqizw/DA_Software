@@ -35,23 +35,7 @@ public class MainActivity extends AppCompatActivity
         });
 
         SeekBar seekBar = findViewById(R.id.skBar_temperature);
-        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-//                bluetoothManager.sendMessageRetry(String.valueOf(progress));
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                int progress = seekBar.getProgress();
-                bluetoothManager.sendMessageRetry(String.valueOf(progress));
-            }
-        });
+        setSeekBarListener(seekBar, "T");
 
     }
 
@@ -83,5 +67,24 @@ public class MainActivity extends AppCompatActivity
                 this,
                 "Message: " + message,
                 Toast.LENGTH_SHORT).show());
+    }
+
+    private void setSeekBarListener(SeekBar seekBar, String type) {
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                int progress = seekBar.getProgress();
+                String message = type + "/" + progress;
+                bluetoothManager.sendMessageRetry(message);
+            }
+        });
     }
 }
