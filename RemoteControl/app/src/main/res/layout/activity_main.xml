@@ -170,7 +170,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/start"
-                android:textSize="23sp" />
+                android:textSize="23sp"
+                android:backgroundTint="@color/dodgerBlue"/>
         </LinearLayout>
     </LinearLayout>
 
