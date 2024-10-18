@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity
         });
 
         setSeekBarListener(seekBarTemp, "T");
-        setSeekBarListener(seekBarFreq, "F");
+        setSeekBarListener(seekBarFreq, "V");
 
         setButton.setOnClickListener(v -> {
             String filename = generateFileName();

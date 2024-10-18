@@ -6,7 +6,7 @@
 #define DEFAULT_TEMPERATURE 43
 #define DEFAULT_FREQUENCY 177
 #define DEFAULT_TEST 1
-#define DEFAULT_STRENGTH 50
+#define DEFAULT_STRENGTH 5
 
 SoftwareSerial BTSerial (2, 3); // RX, TX
 Adafruit_MAX31865 max = Adafruit_MAX31865(6);
@@ -24,6 +24,7 @@ int test;
 
 unsigned long preMillis = 0;
 unsigned long duration = 500;
+unsigned long markPoint = 0;
 
 void setup() {
   Serial.begin(9600);
@@ -41,20 +42,21 @@ void setup() {
 }
 
 void loop() {
-  if (ifVib) {
+  unsigned long curr = millis();
+  if (curr - markPoint < 7000 && markPoint != 0) {
     vibration();
   } else {
     stop_vibration();
   }
 
-  if (ifHeat) {
-    if (millis() - preMillis >= duration) {
-      heat();
-      preMillis = millis();
-    }
-  } else {
-    stop_heat();
-  }
+  // if (ifHeat) {
+  //   if (millis() - preMillis >= duration) {
+  //     heat();
+  //     preMillis = millis();
+  //   }
+  // } else {
+  //   stop_heat();
+  // }
 
   btRecv();
 }
