@@ -165,22 +165,23 @@
                 android:layout_marginEnd="10dp"/>
 
             <Button
-                android:id="@+id/btn_start"
+                android:id="@+id/btn_set"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/start"
+                android:text="@string/set"
                 android:textSize="23sp"
                 android:backgroundTint="@color/dodgerBlue"/>
         </LinearLayout>
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/monitor"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginStart="10dp"
         android:layout_marginEnd="10dp"
-        android:layout_marginBottom="25dp"
+        android:layout_marginBottom="100dp"
         android:orientation="vertical"
         app:layout_constraintTop_toBottomOf="@id/control_panel"
         app:layout_constraintBottom_toBottomOf="parent">
@@ -207,5 +208,17 @@
         </ScrollView>
     </LinearLayout>
 
+    <Button
+        android:id="@+id/btn_run"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/run"
+        android:textSize="25sp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginTop="15dp"
+        android:backgroundTint="@color/dodgerBlue"
+        app:layout_constraintTop_toBottomOf="@id/monitor"
+        app:layout_constraintBottom_toBottomOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

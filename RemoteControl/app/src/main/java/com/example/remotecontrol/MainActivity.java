@@ -1,10 +1,7 @@
 package com.example.remotecontrol;
 
-import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.SeekBar;
@@ -12,11 +9,9 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import java.io.File;
-import java.lang.reflect.Array;
+import com.google.gson.Gson;
 
 public class MainActivity extends AppCompatActivity
         implements BltManager.BluetoothCallback {
@@ -26,11 +21,11 @@ public class MainActivity extends AppCompatActivity
     private BltManager bluetoothManager;
     private FileUtils fileUtils;
     private Button connectButton;
-    private Button startButton;
     private Spinner spinnerGender;
     private Spinner spinnerMode;
     private EditText editTextNr;
     private boolean isConnected = false;
+    private Uri uri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,14 +33,19 @@ public class MainActivity extends AppCompatActivity
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
+        Button setButton = findViewById(R.id.btn_set);
+        Button runButton = findViewById(R.id.btn_run);
+        SeekBar seekBarTemp = findViewById(R.id.skBar_temperature);
+        SeekBar seekBarFreq = findViewById(R.id.skBar_vibration);
+        Trigger trigger = new Trigger();
+
         connectButton = findViewById(R.id.btn_connect);
-        startButton = findViewById(R.id.btn_start);
         bluetoothManager = new BltManager(this);
         spinnerGender = findViewById(R.id.gender);
         spinnerMode = findViewById(R.id.mode);
         editTextNr = findViewById(R.id.number);
-
         fileUtils = new FileUtils(this);
+
 
         connectButton.setOnClickListener(v -> {
             if (!isConnected) {
@@ -55,13 +55,10 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        SeekBar seekBarTemp = findViewById(R.id.skBar_temperature);
         setSeekBarListener(seekBarTemp, "T");
-
-        SeekBar seekBarFreq = findViewById(R.id.skBar_vibration);
         setSeekBarListener(seekBarFreq, "F");
 
-        startButton.setOnClickListener(v -> {
+        setButton.setOnClickListener(v -> {
             String filename = generateFileName();
             if (filename == null) {
                 Toast.makeText(MainActivity.this,
@@ -69,8 +66,21 @@ public class MainActivity extends AppCompatActivity
                 return;
             }
 
-            Uri uri = fileUtils.getUri(filename);
-            fileUtils.appendToUri(uri, "Hello World");
+            uri = fileUtils.getUri(filename);
+            trigger.generateTriggerList(spinnerMode.getSelectedItem().toString());
+            Gson gson = new Gson();
+            String json = gson.toJson(trigger);
+            fileUtils.appendToUri(uri, json);
+        });
+
+        runButton.setOnClickListener(v -> {
+            if (uri == null) {
+                Toast.makeText(MainActivity.this,
+                        "Press Set first", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            String message = "M/" + trigger.getNodes();
+            bluetoothManager.sendMessageRetry(message);
         });
     }
 
@@ -124,12 +134,16 @@ public class MainActivity extends AppCompatActivity
     }
 
     private String generateFileName() {
+        String mode = spinnerMode.getSelectedItem().toString();
+        if (mode.equals("Test")) {
+            return "0_NONE_TEST";
+        }
+
         String gender = spinnerGender.getSelectedItem().toString();
         String number = editTextNr.getText().toString();
         if (number.isEmpty()) {
             return null;
         }
-        String mode = spinnerMode.getSelectedItem().toString();
 
         return number + "_" + gender + "_" + mode;
     }

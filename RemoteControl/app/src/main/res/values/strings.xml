@@ -11,5 +11,6 @@
     <string name="p_five">+5</string>
     <string name="p_ten">+10</string>
     <string name="modes">Mode</string>
-    <string name="start">Start</string>
+    <string name="set">Set</string>
+    <string name="run">Run</string>
 </resources>
