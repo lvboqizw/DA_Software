@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">Remote Control</string>
+    <string name="disconnected">Disconnected</string>
+    <string name="connected">Connected</string>
+    <string name="send">Send</string>
+    <string name="number">Nr:</string>
+    <string name="gender">Gender</string>
+    <string name="temperature">Temperature:</string>
+    <string name="frequency">Frequency:</string>
+    <string name="p_zero">+0</string>
+    <string name="p_five">+5</string>
+    <string name="p_ten">+10</string>
+    <string name="modes">Mode</string>
+    <string name="set">Set</string>
+    <string name="run">Run</string>
+</resources>
