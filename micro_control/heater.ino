@@ -1,30 +1,19 @@
 #define RREF      430.0  // Reference Resistor for MAX31865
 #define RNOMINAL  100.0  // Nominal Resistance of the PT100
 
-double Setpoint = 40, Input, Output;
-double Kp = 5.0, Ki = 5.0, Kd = 3.0;
 
-PID pid(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
-
-void init_heat(int temperature) {
-  max.begin(MAX31865_2WIRE);
-  //pid.SetMode(AUTOMATIC);
-  set_temp(temperature);
-  //pid.SetOutputLimits(0, ICR1);
-}
-
-void set_temp(int temperature) {
-  Setpoint = temperature;
+void set_temp(int addition) {
+  temperature = DEFAULT_TEMPERATURE + addition;
 }
 
 void heat() {
-  Input = max.temperature(RNOMINAL, RREF);
+  int curTemperature = max.temperature(RNOMINAL, RREF);
   Serial.print("Temperature:");
-  Serial.println(Input);
+  Serial.println(curTemperature);
 
-  if(Input < Setpoint - 0.5) {
+  if(curTemperature < temperature - 0.5) {
     digitalWrite(heatPin, HIGH);
-  } else if(Input > Setpoint + 0.5) {
+  } else if(curTemperature > temperature + 0.5) {
     digitalWrite(heatPin, LOW);
   }
 }
