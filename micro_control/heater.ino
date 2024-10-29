@@ -4,14 +4,13 @@
 double Setpoint = 40, Input, Output;
 double Kp = 5.0, Ki = 5.0, Kd = 3.0;
 
-
 PID pid(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
 
 void init_heat(int temperature) {
   max.begin(MAX31865_2WIRE);
-  pid.SetMode(AUTOMATIC);
+  //pid.SetMode(AUTOMATIC);
   set_temp(temperature);
-  pid.SetOutputLimits(0, ICR1);
+  //pid.SetOutputLimits(0, ICR1);
 }
 
 void set_temp(int temperature) {
@@ -20,23 +19,16 @@ void set_temp(int temperature) {
 
 void heat() {
   Input = max.temperature(RNOMINAL, RREF);
-  pid.Compute();
-
   Serial.print("Temperature:");
   Serial.println(Input);
 
-  OCR1B = Output;
+  if(Input < Setpoint - 0.5) {
+    digitalWrite(heatPin, HIGH);
+  } else if(Input > Setpoint + 0.5) {
+    digitalWrite(heatPin, LOW);
+  }
 }
 
 void stop_heat() {
-  OCR1B = 0;
+  digitalWrite(heatPin, LOW);
 }
-
-// bool delay_sf(double milliseconds) {
-//   unsigned long curMillis = millis();
-//   if (curMillis - preMillis >= milliseconds) {
-//     preMillis = curMillis;
-//     return true;
-//   }
-//   return false;
-// }

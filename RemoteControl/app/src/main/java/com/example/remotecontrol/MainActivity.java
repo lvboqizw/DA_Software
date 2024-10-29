@@ -13,6 +13,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.gson.Gson;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class MainActivity extends AppCompatActivity
         implements BltManager.BluetoothCallback {
 
@@ -38,6 +40,8 @@ public class MainActivity extends AppCompatActivity
         SeekBar seekBarTemp = findViewById(R.id.skBar_temperature);
         SeekBar seekBarFreq = findViewById(R.id.skBar_vibration);
         Trigger trigger = new Trigger();
+        AtomicInteger round = new AtomicInteger();
+        round.set(0);
 
         connectButton = findViewById(R.id.btn_connect);
         bluetoothManager = new BltManager(this);
@@ -71,6 +75,7 @@ public class MainActivity extends AppCompatActivity
             Gson gson = new Gson();
             String json = gson.toJson(trigger);
             fileUtils.appendToUri(uri, json);
+            round.set(0);
         });
 
         runButton.setOnClickListener(v -> {
@@ -79,8 +84,14 @@ public class MainActivity extends AppCompatActivity
                         "Press Set first", Toast.LENGTH_SHORT).show();
                 return;
             }
-            String message = "M/" + trigger.getNodes();
-            bluetoothManager.sendMessageRetry(message);
+            if (round.get() < 10) {
+                String message = "M/" + trigger.getNodes(round.getAndIncrement());
+                bluetoothManager.sendMessageRetry(message);
+            } else {
+                Toast.makeText(MainActivity.this,
+                        "Ten Rounds finished", Toast.LENGTH_SHORT).show();
+            }
+
         });
     }
 
