@@ -12,13 +12,14 @@ void btRecv() {
 
     String recMessage = extractData(recData);
     if (calculateChecksum(recMessage) != extractChecksum(recData)) {
-      BTSerial.read();
+      Serial.println("Uncorrect message");
+      BTSerial.write("R");
       return;
     }
     
     message = recMessage;
     Serial.println("Message: " + message);
-    BTSerial.write("ACK");
+    BTSerial.write("A");
   }
 
   if (message.length() != 0) {

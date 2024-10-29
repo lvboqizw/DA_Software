@@ -51,13 +51,12 @@ public class Trigger {
      * Random single point on the wrist one
      * */
     private void modeOne() {
-
         for (int i = 0; i < TEST_ROUNDS; i ++) {
             ringNr[i] = "1";
             StringBuilder nodes = new StringBuilder();
-            int res;
+            int res = 0b00000000;
             int node = random.nextInt(6);
-            res = 1 << (node - 1);
+            res = res | (1 << node);
             nodes.append(res);
             triggerList[i] = nodes.toString();
         }

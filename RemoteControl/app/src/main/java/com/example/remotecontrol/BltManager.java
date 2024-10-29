@@ -31,6 +31,7 @@ public class BltManager {
     private BluetoothCallback callback;
     private boolean isConnected = false;
     private boolean getAnACK = false;
+    private boolean resend = true;
 
     private Handler handler = new Handler(Looper.getMainLooper());
 
@@ -97,8 +98,14 @@ public class BltManager {
                     bytes = inputStream.read(buffer);
                     String receivedMessage = new String(buffer, 0, bytes);
 
-                    if (receivedMessage.equals("ACK")) {
+                    if (receivedMessage.equals("A")) {
                         getAnACK = true;
+                        handler.post(() -> callback.onMessageReceived("ACK"));
+                    } else if (receivedMessage.equals("R")) {
+                        resend = true;
+                        handler.post(() -> callback.onMessageReceived("RS"));
+                    } else {
+                        handler.post(() -> callback.onMessageReceived(receivedMessage));
                     }
                 } catch (IOException e) {
                     Log.e("BluetoothError", "Listen Message Failed", e);
@@ -134,25 +141,22 @@ public class BltManager {
         int checkSum = getCheckSum(message);
         String bag = String.format("%02X", checkSum) + message;
         new Thread(() -> {
-            boolean ackReceived = false;
-            while (!ackReceived && isConnected) {
-                try {
-                    sendMessage(bag);
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    Log.e("BluetoothError", "sendMessageRetry: Thread sleep Failed", e);
-                }
-                ackReceived = checkForAck();
-            }
+              while (!getAnACK && isConnected) {
+                  try {
+                      if (resend) {
+                          sendMessage(bag);
+                          resend = false;
+                      }
+                      Thread.sleep(500);
+                  } catch (InterruptedException e) {
+                      Log.e("BluetoothError", "sendMessageRetry: Thread sleep Failed", e);
+                  }
+              }
+              if (getAnACK) {
+                  getAnACK = false;
+                  resend = true;
+              }
         }).start();
-    }
-
-    private boolean checkForAck() {
-        if (getAnACK) {
-            getAnACK = false;
-            return true;
-        }
-        return false;
     }
 
     int getCheckSum(String message) {

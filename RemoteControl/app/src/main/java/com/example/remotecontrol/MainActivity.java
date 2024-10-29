@@ -28,6 +28,7 @@ public class MainActivity extends AppCompatActivity
     private EditText editTextNr;
     private boolean isConnected = false;
     private Uri uri;
+    private AtomicInteger round = new AtomicInteger();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,7 +41,7 @@ public class MainActivity extends AppCompatActivity
         SeekBar seekBarTemp = findViewById(R.id.skBar_temperature);
         SeekBar seekBarFreq = findViewById(R.id.skBar_vibration);
         Trigger trigger = new Trigger();
-        AtomicInteger round = new AtomicInteger();
+
         round.set(0);
 
         connectButton = findViewById(R.id.btn_connect);
@@ -85,7 +86,7 @@ public class MainActivity extends AppCompatActivity
                 return;
             }
             if (round.get() < 10) {
-                String message = "M/" + trigger.getNodes(round.getAndIncrement());
+                String message = "M/" + trigger.getNodes(round.get());
                 bluetoothManager.sendMessageRetry(message);
             } else {
                 Toast.makeText(MainActivity.this,
@@ -123,6 +124,9 @@ public class MainActivity extends AppCompatActivity
                 this,
                 "Message: " + message,
                 Toast.LENGTH_SHORT).show());
+        if (message.equals("ACK")) {
+            round.incrementAndGet();
+        }
     }
 
     private void setSeekBarListener(SeekBar seekBar, String type) {
