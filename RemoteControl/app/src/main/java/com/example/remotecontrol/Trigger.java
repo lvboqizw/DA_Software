@@ -37,6 +37,18 @@ public class Trigger {
         return ringNr[round] + "/" + triggerList[round];
     }
 
+    public String getRing(int round) {
+        return ringNr[round];
+    }
+
+    public String getNode(int round) {
+        return triggerList[round];
+    }
+
+    public int getTotalRound() {
+        return TEST_ROUNDS;
+    }
+
     /**
      * Test Functionality
      * */

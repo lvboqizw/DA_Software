@@ -4,8 +4,10 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -19,6 +21,7 @@ public class MainActivity extends AppCompatActivity
         implements BltManager.BluetoothCallback {
 
     private static final String DEVICE_MAC_ADDRESS = "98:D3:31:F6:F6:AC";
+    private static final int DEFAULT_TEMPERATURE = 40;
 
     private BltManager bluetoothManager;
     private FileUtils fileUtils;
@@ -28,7 +31,8 @@ public class MainActivity extends AppCompatActivity
     private EditText editTextNr;
     private boolean isConnected = false;
     private Uri uri;
-    private AtomicInteger round = new AtomicInteger();
+    private final AtomicInteger round = new AtomicInteger();
+    private ProgressBar timerBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +54,8 @@ public class MainActivity extends AppCompatActivity
         spinnerMode = findViewById(R.id.mode);
         editTextNr = findViewById(R.id.number);
         fileUtils = new FileUtils(this);
+        timerBar = findViewById(R.id.timer);
+        timerBar.setProgress(0);
 
 
         connectButton.setOnClickListener(v -> {
@@ -61,6 +67,8 @@ public class MainActivity extends AppCompatActivity
         });
 
         setSeekBarListener(seekBarTemp, "T");
+        updateMonitor(R.id.monitor_temperature, "Temperature: "
+                + Integer.toString(DEFAULT_TEMPERATURE));
         setSeekBarListener(seekBarFreq, "V");
 
         setButton.setOnClickListener(v -> {
@@ -85,14 +93,23 @@ public class MainActivity extends AppCompatActivity
                         "Press Set first", Toast.LENGTH_SHORT).show();
                 return;
             }
-            if (round.get() < 10) {
-                String message = "M/" + trigger.getNodes(round.get());
+            int curRound = round.get();
+            if (curRound < 10) {
+                String ring = trigger.getRing(curRound);
+                String node = trigger.getNode(curRound);
+                String message = "M/" + ring + "/" + node;
                 bluetoothManager.sendMessageRetry(message);
+
+                String process = Integer.toString(curRound + 1) + "/"
+                        + Integer.toString(trigger.getTotalRound());
+                updateMonitor(R.id.monitor_round, "Round: " + process);
+                updateMonitor(R.id.monitor_ring, "Ring: " + toBinary(ring, 3));
+                updateMonitor(R.id.monitor_node, "Node: " + toBinary(node, 6));
+
             } else {
                 Toast.makeText(MainActivity.this,
                         "Ten Rounds finished", Toast.LENGTH_SHORT).show();
             }
-
         });
     }
 
@@ -144,6 +161,12 @@ public class MainActivity extends AppCompatActivity
                 int progress = seekBar.getProgress();
                 String message = type + "/" + progress;
                 bluetoothManager.sendMessageRetry(message);
+                if (type.equals("T")) {
+                    String temperature = Integer.toString(DEFAULT_TEMPERATURE + progress);
+                    updateMonitor(R.id.monitor_temperature,
+                            "Temperature: "
+                                    + temperature);
+                }
             }
         });
     }
@@ -161,5 +184,25 @@ public class MainActivity extends AppCompatActivity
         }
 
         return number + "_" + gender + "_" + mode;
+    }
+
+    private void updateMonitor(int id, String message) {
+        TextView textView = findViewById(id);
+        textView.setText(message);
+    }
+
+    private String toBinary(String message, int len) {
+        int value = Integer.parseInt(message);
+        StringBuilder builder = new StringBuilder();
+
+        for (int i = len - 1; i >= 0; i--) {
+            int tmp = 1 << i;
+            if ((tmp & value) != 0) {
+                builder.append("1");
+            } else {
+                builder.append("0");
+            }
+        }
+        return builder.toString();
     }
 }

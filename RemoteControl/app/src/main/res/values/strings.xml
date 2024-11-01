@@ -13,4 +13,7 @@
     <string name="modes">Mode</string>
     <string name="set">Set</string>
     <string name="run">Run</string>
+    <string name="round">Round: 0/10</string>
+    <string name="ring">Rings: 0</string>
+    <string name="node">Node: 0</string>
 </resources>

@@ -187,26 +187,48 @@
         app:layout_constraintTop_toBottomOf="@id/control_panel"
         app:layout_constraintBottom_toBottomOf="parent">
 
+
         <ProgressBar
-            android:id="@+id/progress_time"
+            android:id="@+id/timer"
+            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
             android:layout_width="match_parent"
             android:layout_height="30dp"
-            android:max="100"
-            android:padding="20dp"
-            style="@style/Widget.AppCompat.ProgressBar.Horizontal"/>
+            android:max="8"
+            android:progress="0"
+            android:padding="20dp" />
 
-        <ScrollView
+        <TextView
+            android:id="@+id/monitor_round"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@color/gray">
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:text="@string/round"
+            android:layout_marginBottom="10dp"/>
 
-            <TextView
-                android:id="@+id/tv_output"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="16sp"
-                android:padding="8dp" />
-        </ScrollView>
+        <TextView
+            android:id="@+id/monitor_temperature"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:text="@string/temperature"
+            android:layout_marginBottom="10dp"/>
+
+        <TextView
+            android:id="@+id/monitor_ring"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:text="@string/ring"
+            android:layout_marginBottom="10dp"/>
+
+        <TextView
+            android:id="@+id/monitor_node"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:text="@string/node"
+            android:layout_marginBottom="10dp"/>
+
     </LinearLayout>
 
     <Button
