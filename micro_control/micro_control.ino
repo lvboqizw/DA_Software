@@ -13,9 +13,13 @@ const int heatPin = 5;
 const int ringI = 6;
 const int ringII = 7;
 const int ringIII = 8;
+const int readyPin = 9;
 
 unsigned long markPoint = 0;
 unsigned int temperature = DEFAULT_TEMPERATURE;
+unsigned int curTemperature = 0;
+bool run = false;
+bool ready = false;
 
 void setup() {
   Serial.begin(9600);
@@ -26,6 +30,9 @@ void setup() {
   pinMode(heatPin, OUTPUT);
   digitalWrite(heatPin, LOW);
 
+  pinMode(readyPin, OUTPUT);
+  digitalWrite(readyPin, LOW);
+
   pinMode(ringI, OUTPUT);
   pinMode(ringII, OUTPUT);
   pinMode(ringIII, OUTPUT);
@@ -35,26 +42,25 @@ void setup() {
 }
 
 void loop() {
-  unsigned long curr = millis();
-  // if (curr - markPoint > 3000 &&
-  //   curr - markPoint < 8000 &&
-  //   markPoint != 0) {
-  //     vibration_test(1, 1);
-  //   } else {
-  //     stop_vibration();
-  //   }
-
-  if (curr - markPoint < 4000 && markPoint != 0) {
-    digitalWrite(heatPin, HIGH);
-  } else {
-    digitalWrite(heatPin, LOW);
+  btRecv();
+  if (run) {
+    if (ready) {
+      unsigned long curr = millis();
+      if (curr - markPoint < 8000 &&
+        markPoint != 0) {
+          digitalWrite(readyPin, HIGH);
+          vibration();
+          heat();
+        } else {
+          stop_vibration();
+          stop_heat();
+          run = false;
+          ready = false;
+          digitalWrite(readyPin, LOW);
+        }
+    } else {
+      preHeat();
+    }
   }
 
-  // if (curr - markPoint < 8000 && markPoint != 0) {
-  //   heat();
-  // } else {
-  //   stop_heat();
-  // }
-
-  btRecv();
 }

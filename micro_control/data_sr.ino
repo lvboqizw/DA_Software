@@ -1,5 +1,3 @@
-
-String message_tmp = "M/012/45";
 String type;
 int rings;
 int nodes;
@@ -18,19 +16,16 @@ void btRecv() {
     }
     
     message = recMessage;
-    Serial.println("Message: " + message);
     BTSerial.write("A");
   }
 
   if (message.length() != 0) {
     trigger();
-    delay(1000);
   }
 }
 
 void trigger() {
   type = message[0];
-  Serial.println("Type: " + type);
   type.trim();
   switch (type[0]) {
     case 'M':
@@ -39,7 +34,8 @@ void trigger() {
       Serial.print(rings);
       Serial.print(" Nodes: ");
       Serial.println(nodes);
-      markPoint = millis();
+      run = true;
+      // markPoint = millis();
       break;
     case 'T':
       Serial.print("Temeprature: ");
