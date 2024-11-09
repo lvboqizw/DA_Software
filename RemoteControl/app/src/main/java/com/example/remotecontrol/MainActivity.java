@@ -191,6 +191,7 @@ public class MainActivity extends AppCompatActivity
         textView.setText(message);
     }
 
+
     private String toBinary(String message, int len) {
         int value = Integer.parseInt(message);
         StringBuilder builder = new StringBuilder();

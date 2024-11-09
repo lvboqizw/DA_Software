@@ -1,66 +1,56 @@
 #include <SPI.h>
-#include <Adafruit_MAX31865.h>
 #include <SoftwareSerial.h>
+#include "sensorT.h"
+#include "heater.h"
+#include "vibRing.h"
 
-#define DEFAULT_TEMPERATURE 40
-#define DEFAULT_FREQUENCY 177
-#define DEFAULT_STRENGTH 5
-
+SensorT sensorT(2);
+Heater heater(5);
+VibRing ringI(6);
 SoftwareSerial BTSerial (4, 3); // RX, TX
-Adafruit_MAX31865 max = Adafruit_MAX31865(2);
 
-const int heatPin = 5;
-const int ringI = 6;
-const int ringII = 7;
-const int ringIII = 8;
-const int readyPin = 9;
-
+unsigned long messageFlag = 0;
 unsigned long markPoint = 0;
-unsigned int temperature = DEFAULT_TEMPERATURE;
-unsigned int curTemperature = 0;
+
 bool run = false;
 bool ready = false;
+
+const int readyPin = 9;
 
 void setup() {
   Serial.begin(9600);
   BTSerial.begin(115200);
-  SPI.begin();
-  max.begin(MAX31865_2WIRE);
-
-  pinMode(heatPin, OUTPUT);
-  digitalWrite(heatPin, LOW);
 
   pinMode(readyPin, OUTPUT);
   digitalWrite(readyPin, LOW);
-
-  pinMode(ringI, OUTPUT);
-  pinMode(ringII, OUTPUT);
-  pinMode(ringIII, OUTPUT);
-  digitalWrite(ringI, HIGH);
-  digitalWrite(ringII, HIGH);
-  digitalWrite(ringIII, HIGH);
 }
 
 void loop() {
+  int curTemperature = sensorT.getTemperature();
+  String message = "Temperature:" + String(curTemperature);
+  sendEverySec(message); 
+  heater.setCur(curTemperature);
+
   btRecv();
+
   if (run) {
     if (ready) {
-      unsigned long curr = millis();
-      if (curr - markPoint < 8000 &&
-        markPoint != 0) {
-          digitalWrite(readyPin, HIGH);
-          vibration();
-          heat();
-        } else {
-          stop_vibration();
-          stop_heat();
-          run = false;
-          ready = false;
-          digitalWrite(readyPin, LOW);
-        }
+      unsigned long curMillis = millis();
+      if (curMillis - markPoint < 8000) {
+        heater.heat();
+        ringI.vib();
+        digitalWrite(readyPin, HIGH);
+      } else {
+        run = false;
+        ready = false;
+        digitalWrite(readyPin, LOW);
+      }
     } else {
-      preHeat();
+      ready = heater.preHeat();
+      markPoint = millis();
     }
+  } else {
+    heater.stopHeat();
+    ringI.stopVib();
   }
-
 }

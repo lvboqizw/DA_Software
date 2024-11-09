@@ -1,6 +1,4 @@
 String type;
-int rings;
-int nodes;
 String message = "";
 
 void btRecv() {
@@ -30,16 +28,12 @@ void trigger() {
   switch (type[0]) {
     case 'M':
       sliptMessage();
-      Serial.print("ring: ");
-      Serial.print(rings);
-      Serial.print(" Nodes: ");
-      Serial.println(nodes);
       run = true;
-      // markPoint = millis();
       break;
     case 'T':
-      Serial.print("Temeprature: ");
+      Serial.print("SetTemeprature: ");
       Serial.println(message[2]);
+      // setTemperature(message[2]);
       break;
     case 'V':
       String numStr = message.substring(2);
@@ -71,10 +65,33 @@ String extractData(const String &receivedData) {
   return receivedData.substring(2);
 }
 
+///
+void sendEverySec(String message) {
+  unsigned long curMillis = millis();
+  if (curMillis - messageFlag >= 1000) {
+    Serial.println(message);
+    messageFlag = curMillis;
+  }
+}
+
 void sliptMessage() {
   int firstSlash = message.indexOf('/');
   int secondSlash = message.indexOf('/', firstSlash + 1);
 
-  rings = message.substring(firstSlash + 1, secondSlash).toInt();
-  nodes = message.substring(secondSlash + 1).toInt();
+  int rings = message.substring(firstSlash + 1, secondSlash).toInt();
+  activeRings(rings);
+  int nodes = message.substring(secondSlash + 1).toInt();
+  writeNodes(nodes);
+}
+
+void activeRings(int rings) {
+  if (rings & 0b001) {
+    ringI.on();
+  } else {
+    ringI.off();
+  }
+}
+
+void writeNodes(int nodes) {
+  ringI.setNodes(nodes);
 }
