@@ -16,7 +16,6 @@ class Heater {
     bool preHeat();
     void setTarget(int target);
     void setCur(int cur);
-    bool getReady();
 };
 
 #endif
