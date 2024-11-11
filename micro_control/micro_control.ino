@@ -16,6 +16,7 @@ bool run = false;
 bool start = false;
 
 const int btnPin = 9;
+const int readyPin = 10;
 int lastButtonState = HIGH;
 int currentButtonState;  
 
@@ -24,6 +25,8 @@ void setup() {
   BTSerial.begin(115200);
 
   pinMode(btnPin, INPUT_PULLUP);
+  pinMode(btnPin, OUTPUT);
+  digitalWrite(readyPin, LOW);
 }
 
 void loop() {
@@ -48,28 +51,31 @@ void checkBtn() {
 
 void processing() {
   int curTemperature = sensorT.getTemperature();
-  String message = "Temperature:" + String(curTemperature);
-  sendEverySec(message); 
   heater.setCur(curTemperature);
+  sendEverySec(String(curTemperature)); 
 
   btRecv();
 
-  bool ready = heater.preHeat();
+  heater.preHeat();
 
-  if (ready) {
-    if (run) {
+  if (heater.checkReady()) {
+    digitalWrite(readyPin, HIGH);
+  } else {
+    digitalWrite(readyPin, LOW);
+  }
+
+  if (run) {
+    if (heater.checkReady()) {
       unsigned long curMillis = millis();
       if (curMillis - markPoint < 8000) {
         heater.heat();
         ringI.vib();
       } else {
         run = false;
-        ready = false;
+        ringI.stopVib();
       }
     } else {
-      heater.stopHeat();
-      ringI.stopVib();
-      markPoint = millis();
+      Serial.println("Not Ready");
     }
   }
 }

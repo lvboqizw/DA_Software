@@ -17,14 +17,13 @@ void Heater::heat() {
 
 void Heater::stopHeat() {
   digitalWrite(pin, LOW);
+  ready = false;
 }
 
-bool Heater::preHeat() {
-  if (curTemperature < targetTemperature - 1) {
-    digitalWrite(pin, HIGH);
-    return false;
-  } else {
-    return true;
+void Heater::preHeat() {
+  Heater::heat();
+  if(curTemperature > targetTemperature - 2.5) {
+    ready = true;
   }
 }
 
@@ -34,4 +33,8 @@ void Heater::setTarget(int target) {
 
 void Heater::setCur(int cur) {
   curTemperature = cur;
+}
+
+bool Heater::checkReady() {
+  return ready;
 }

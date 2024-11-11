@@ -18,6 +18,7 @@ void btRecv() {
   }
 
   if (message.length() != 0) {
+    Serial.println(message);
     trigger();
   }
 }
@@ -29,6 +30,7 @@ void trigger() {
     case 'M':
       sliptMessage();
       run = true;
+      markPoint = millis();
       break;
     case 'T':
       Serial.print("SetTemeprature: ");
@@ -65,11 +67,12 @@ String extractData(const String &receivedData) {
   return receivedData.substring(2);
 }
 
-///
-void sendEverySec(String message) {
+void sendEverySec(String msg) {
   unsigned long curMillis = millis();
   if (curMillis - messageFlag >= 1000) {
-    Serial.println(message);
+    Serial.println("Temperature:" + msg);
+    String tmp = "T" + msg;
+    BTSerial.print(tmp);
     messageFlag = curMillis;
   }
 }

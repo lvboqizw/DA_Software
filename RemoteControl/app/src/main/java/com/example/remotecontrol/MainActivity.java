@@ -1,7 +1,9 @@
 package com.example.remotecontrol;
 
+import android.annotation.SuppressLint;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
@@ -15,7 +17,10 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.gson.Gson;
 
+import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity
         implements BltManager.BluetoothCallback {
@@ -88,27 +93,60 @@ public class MainActivity extends AppCompatActivity
         });
 
         runButton.setOnClickListener(v -> {
-            if (uri == null) {
-                Toast.makeText(MainActivity.this,
-                        "Press Set first", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            int curRound = round.get();
-            if (curRound < 10) {
-                String ring = trigger.getRing(curRound);
-                String node = trigger.getNode(curRound);
-                String message = "M/" + ring + "/" + node;
-                bluetoothManager.sendMessageRetry(message);
+            String mode = spinnerMode.getSelectedItem().toString();
+            if (mode.equals("FLOW")) {
+                Handler handler = new Handler();
+                final int[] node = {1};
+                final int[] timer = {2};
+                long startTime = System.currentTimeMillis();
 
-                String process = Integer.toString(curRound + 1) + "/"
-                        + Integer.toString(trigger.getTotalRound());
-                updateMonitor(R.id.monitor_round, "Round: " + process);
-                updateMonitor(R.id.monitor_ring, "Ring: " + toBinary(ring, 3));
-                updateMonitor(R.id.monitor_node, "Node: " + toBinary(node, 6));
+                Runnable runnable = new Runnable() {
+                    @SuppressLint("SetTextI18n")
+                    @Override
+                    public void run() {
+                        long elapsedTime = System.currentTimeMillis() - startTime;
+                        if (elapsedTime < 8000) {
+                            bluetoothManager.sendMessageRetry("M/1/" + node[0]);
+                            TextView textView = findViewById(R.id.monitor_node);
+                            textView.setText("Node: " +
+                                    toBinary(String.valueOf(node[0]), 6));
 
+                            timerBar.setProgress(timer[0]);
+
+                            node[0] <<= 1;
+                            if (node[0] > 32) {
+                                node[0] = 1;
+                            }
+                            timer[0] += 2;
+
+                            handler.postDelayed(this, 2000);
+                        }
+                    }
+                };
+                handler.post(runnable);
             } else {
-                Toast.makeText(MainActivity.this,
-                        "Ten Rounds finished", Toast.LENGTH_SHORT).show();
+                if (uri == null) {
+                    Toast.makeText(MainActivity.this,
+                            "Press Set first", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                int curRound = round.get();
+                if (curRound < 10) {
+                    String ring = trigger.getRing(curRound);
+                    String node = trigger.getNode(curRound);
+                    String message = "M/" + ring + "/" + node;
+                    bluetoothManager.sendMessageRetry(message);
+
+                    String process = Integer.toString(curRound + 1) + "/"
+                            + Integer.toString(trigger.getTotalRound());
+                    updateMonitor(R.id.monitor_round, "Round: " + process);
+                    updateMonitor(R.id.monitor_ring, "Ring: " + toBinary(ring, 3));
+                    updateMonitor(R.id.monitor_node, "Node: " + toBinary(node, 6));
+
+                } else {
+                    Toast.makeText(MainActivity.this,
+                            "Ten Rounds finished", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
@@ -137,12 +175,15 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void onMessageReceived(String message) {
-        runOnUiThread(() -> Toast.makeText(
-                this,
-                "Message: " + message,
-                Toast.LENGTH_SHORT).show());
+//        runOnUiThread(() -> Toast.makeText(
+//                this,
+//                "Message: " + message,
+//                Toast.LENGTH_SHORT).show());
         if (message.equals("ACK")) {
             round.incrementAndGet();
+        }
+        if (message.contains("T")) {
+            setTemperature(message);
         }
     }
 
@@ -205,5 +246,16 @@ public class MainActivity extends AppCompatActivity
             }
         }
         return builder.toString();
+    }
+
+    private void setTemperature(String message) {
+        Pattern pattern = Pattern.compile("\\d+");
+        Matcher matcher = pattern.matcher(message);
+
+        if (matcher.find()) {
+            String number = matcher.group();
+            updateMonitor(R.id.monitor_temperature,
+                    "Temperature: " + number);
+        }
     }
 }
