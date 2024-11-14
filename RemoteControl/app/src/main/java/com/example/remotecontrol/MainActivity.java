@@ -1,9 +1,6 @@
 package com.example.remotecontrol;
 
-import android.annotation.SuppressLint;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
@@ -15,29 +12,21 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.gson.Gson;
-
-import java.util.Arrays;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity
         implements BltManager.BluetoothCallback {
 
-    private static final String DEVICE_MAC_ADDRESS = "98:D3:31:F6:F6:AC";
-    private static final int DEFAULT_TEMPERATURE = 40;
-
     private BltManager bluetoothManager;
-    private FileUtils fileUtils;
     private Button connectButton;
     private Spinner spinnerGender;
     private Spinner spinnerMode;
     private EditText editTextNr;
     private boolean isConnected = false;
-    private Uri uri;
-    private final AtomicInteger round = new AtomicInteger();
     private ProgressBar timerBar;
+
+    private ButtonHandler buttonHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,106 +37,37 @@ public class MainActivity extends AppCompatActivity
         Button setButton = findViewById(R.id.btn_set);
         Button runButton = findViewById(R.id.btn_run);
         SeekBar seekBarTemp = findViewById(R.id.skBar_temperature);
-        SeekBar seekBarFreq = findViewById(R.id.skBar_vibration);
-        Trigger trigger = new Trigger();
-
-        round.set(0);
 
         connectButton = findViewById(R.id.btn_connect);
         bluetoothManager = new BltManager(this);
         spinnerGender = findViewById(R.id.gender);
         spinnerMode = findViewById(R.id.mode);
         editTextNr = findViewById(R.id.number);
-        fileUtils = new FileUtils(this);
         timerBar = findViewById(R.id.timer);
         timerBar.setProgress(0);
 
+        buttonHandler = new ButtonHandler(this, this);
+
 
         connectButton.setOnClickListener(v -> {
-            if (!isConnected) {
-                bluetoothManager.connect(DEVICE_MAC_ADDRESS);
-            } else {
-                bluetoothManager.disconnect();
-            }
+            buttonHandler.btnConnection(isConnected);
         });
 
         setSeekBarListener(seekBarTemp, "T");
-        updateMonitor(R.id.monitor_temperature, "Temperature: "
-                + Integer.toString(DEFAULT_TEMPERATURE));
-        setSeekBarListener(seekBarFreq, "V");
 
         setButton.setOnClickListener(v -> {
-            String filename = generateFileName();
-            if (filename == null) {
-                Toast.makeText(MainActivity.this,
-                        "Missing Number", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            uri = fileUtils.getUri(filename);
-            trigger.generateTriggerList(spinnerMode.getSelectedItem().toString());
-            Gson gson = new Gson();
-            String json = gson.toJson(trigger);
-            fileUtils.appendToUri(uri, json);
-            round.set(0);
+            String mode = spinnerMode.getSelectedItem().toString();
+            String gender = spinnerGender.getSelectedItem().toString();
+            String number = editTextNr.getText().toString();
+            buttonHandler.btnSet(mode, gender, number);
         });
 
         runButton.setOnClickListener(v -> {
             String mode = spinnerMode.getSelectedItem().toString();
-            if (mode.equals("FLOW")) {
-                Handler handler = new Handler();
-                final int[] node = {1};
-                final int[] timer = {2};
-                long startTime = System.currentTimeMillis();
-
-                Runnable runnable = new Runnable() {
-                    @SuppressLint("SetTextI18n")
-                    @Override
-                    public void run() {
-                        long elapsedTime = System.currentTimeMillis() - startTime;
-                        if (elapsedTime < 8000) {
-                            bluetoothManager.sendMessageRetry("M/1/" + node[0]);
-                            TextView textView = findViewById(R.id.monitor_node);
-                            textView.setText("Node: " +
-                                    toBinary(String.valueOf(node[0]), 6));
-
-                            timerBar.setProgress(timer[0]);
-
-                            node[0] <<= 1;
-                            if (node[0] > 32) {
-                                node[0] = 1;
-                            }
-                            timer[0] += 2;
-
-                            handler.postDelayed(this, 2000);
-                        }
-                    }
-                };
-                handler.post(runnable);
-            } else {
-                if (uri == null) {
-                    Toast.makeText(MainActivity.this,
-                            "Press Set first", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                int curRound = round.get();
-                if (curRound < 10) {
-                    String ring = trigger.getRing(curRound);
-                    String node = trigger.getNode(curRound);
-                    String message = "M/" + ring + "/" + node;
-                    bluetoothManager.sendMessageRetry(message);
-
-                    String process = Integer.toString(curRound + 1) + "/"
-                            + Integer.toString(trigger.getTotalRound());
-                    updateMonitor(R.id.monitor_round, "Round: " + process);
-                    updateMonitor(R.id.monitor_ring, "Ring: " + toBinary(ring, 3));
-                    updateMonitor(R.id.monitor_node, "Node: " + toBinary(node, 6));
-
-                } else {
-                    Toast.makeText(MainActivity.this,
-                            "Ten Rounds finished", Toast.LENGTH_SHORT).show();
-                }
-            }
+            TextView roundText = findViewById(R.id.monitor_round);
+            TextView nodeText = findViewById(R.id.monitor_node);
+            TextView ringText = findViewById(R.id.monitor_ring);
+            buttonHandler.btnRun(mode, roundText, nodeText, ringText, timerBar);
         });
     }
 
@@ -175,15 +95,11 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void onMessageReceived(String message) {
-//        runOnUiThread(() -> Toast.makeText(
-//                this,
-//                "Message: " + message,
-//                Toast.LENGTH_SHORT).show());
         if (message.equals("ACK")) {
-            round.incrementAndGet();
+            buttonHandler.roundIncrement();
         }
         if (message.contains("T")) {
-            setTemperature(message);
+            updateTemperature(message);
         }
     }
 
@@ -203,7 +119,7 @@ public class MainActivity extends AppCompatActivity
                 String message = type + "/" + progress;
                 bluetoothManager.sendMessageRetry(message);
                 if (type.equals("T")) {
-                    String temperature = Integer.toString(DEFAULT_TEMPERATURE + progress);
+                    String temperature = Integer.toString(Constants.DEFAULT_TEMPERATURE + progress);
                     updateMonitor(R.id.monitor_temperature,
                             "Temperature: "
                                     + temperature);
@@ -212,43 +128,12 @@ public class MainActivity extends AppCompatActivity
         });
     }
 
-    private String generateFileName() {
-        String mode = spinnerMode.getSelectedItem().toString();
-        if (mode.equals("Test")) {
-            return "0_NONE_TEST";
-        }
-
-        String gender = spinnerGender.getSelectedItem().toString();
-        String number = editTextNr.getText().toString();
-        if (number.isEmpty()) {
-            return null;
-        }
-
-        return number + "_" + gender + "_" + mode;
-    }
-
     private void updateMonitor(int id, String message) {
         TextView textView = findViewById(id);
         textView.setText(message);
     }
 
-
-    private String toBinary(String message, int len) {
-        int value = Integer.parseInt(message);
-        StringBuilder builder = new StringBuilder();
-
-        for (int i = len - 1; i >= 0; i--) {
-            int tmp = 1 << i;
-            if ((tmp & value) != 0) {
-                builder.append("1");
-            } else {
-                builder.append("0");
-            }
-        }
-        return builder.toString();
-    }
-
-    private void setTemperature(String message) {
+    private void updateTemperature(String message) {
         Pattern pattern = Pattern.compile("\\d+");
         Matcher matcher = pattern.matcher(message);
 

@@ -18,7 +18,7 @@ void btRecv() {
   }
 
   if (message.length() != 0) {
-    Serial.println(message);
+    // Serial.println(message);
     trigger();
   }
 }

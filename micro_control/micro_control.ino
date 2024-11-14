@@ -38,6 +38,7 @@ void loop() {
     run = false;
     heater.stopHeat();
     ringI.stopVib();
+    digitalWrite(readyPin, LOW);
   }
 }
 
@@ -67,7 +68,7 @@ void processing() {
   if (run) {
     if (heater.checkReady()) {
       unsigned long curMillis = millis();
-      if (curMillis - markPoint < 8000) {
+      if (curMillis - markPoint < 15000) {
         heater.heat();
         ringI.vib();
       } else {

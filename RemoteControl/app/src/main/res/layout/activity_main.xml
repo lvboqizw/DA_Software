@@ -68,7 +68,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/p_zero"
+                android:text="@string/min_temperature"
                 android:layout_weight="1"
                 android:textSize="20sp"
                 android:textAlignment="center"/>
@@ -77,52 +77,14 @@
                 android:id="@+id/skBar_temperature"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:max="5"
+                android:max="6"
                 android:layout_gravity="center"
                 android:layout_weight="15"/>
 
             <TextView
                 android:layout_width="30dp"
                 android:layout_height="wrap_content"
-                android:text="@string/p_five"
-                android:layout_weight="1"
-                android:textSize="20sp"
-                android:textAlignment="center"/>
-        </LinearLayout>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/frequency"
-            android:textSize="25sp"
-            android:layout_marginBottom="10sp" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="15dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/p_zero"
-                android:layout_weight="1"
-                android:textSize="20sp"
-                android:textAlignment="center"/>
-
-            <SeekBar
-                android:id="@+id/skBar_vibration"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:max="10"
-                android:layout_gravity="center"
-                android:layout_weight="15"
-                android:progress="5"/>
-
-            <TextView
-                android:layout_width="30dp"
-                android:layout_height="wrap_content"
-                android:text="@string/p_ten"
+                android:text="@string/max_temperature"
                 android:layout_weight="1"
                 android:textSize="20sp"
                 android:textAlignment="center"/>
@@ -146,8 +108,28 @@
                 android:layout_height="48dp"
                 android:layout_weight="1"
                 android:entries="@array/tests"/>
-
         </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="15dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/vibTime"
+            android:textSize="25sp"
+            android:layout_weight="1"/>
+
+        <EditText
+            android:id="@+id/vib_time"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:layout_weight="4"
+            android:hint="Default 8s"
+            android:inputType="number"/>
+    </LinearLayout>
 
         <LinearLayout
             style="?android:attr/buttonBarStyle"
@@ -174,6 +156,33 @@
                 android:textSize="23sp"
                 android:backgroundTint="@color/dodgerBlue"/>
         </LinearLayout>
+
+        <LinearLayout
+            style="?android:attr/buttonBarStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="15dp">
+
+            <Button
+                android:id="@+id/btn_heat"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/heat"
+                android:textSize="23sp"
+                android:layout_weight="1"
+                android:layout_marginEnd="10dp"
+                android:backgroundTint="@color/dodgerBlue"/>
+
+            <Button
+                android:id="@+id/btn_vib"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/vib"
+                android:textSize="23sp"
+                android:backgroundTint="@color/dodgerBlue"/>
+        </LinearLayout>
+
     </LinearLayout>
 
     <LinearLayout
