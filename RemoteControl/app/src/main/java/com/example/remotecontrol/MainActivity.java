@@ -1,5 +1,6 @@
 package com.example.remotecontrol;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
@@ -27,6 +28,7 @@ public class MainActivity extends AppCompatActivity
 
     private ButtonHandler buttonHandler;
 
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,6 +41,7 @@ public class MainActivity extends AppCompatActivity
         SeekBar seekBarTemp = findViewById(R.id.skBar_temperature);
 
         EditText vibTimeText = findViewById(R.id.vib_time);
+        TextView extraTemperature = findViewById(R.id.extra_Temperature);
         vibTimeText.setText(String.valueOf(Constants.DEFAULT_VIBE_TIME));
 
         connectButton = findViewById(R.id.btn_connect);
@@ -51,6 +54,21 @@ public class MainActivity extends AppCompatActivity
 
         buttonHandler = new ButtonHandler(this, this);
 
+        seekBarTemp.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                String extra = String.valueOf(seekBarTemp.getProgress());
+                extraTemperature.setText("Temperature: +" + extra);
+            }
+        });
 
         connectButton.setOnClickListener(v -> {
             buttonHandler.btnConnection(isConnected);
