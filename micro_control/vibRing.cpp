@@ -15,6 +15,10 @@ void VibRing::setNodes(int n) {
   nodes = n;
 }
 
+int VibRing::getNodes() {
+  return nodes;
+}
+
 void VibRing::vib() {
   digitalWrite(pin, LOW);
   SPI.transfer(nodes);
@@ -23,6 +27,7 @@ void VibRing::vib() {
 
 void VibRing::stopVib() {
   digitalWrite(pin, LOW);
+  nodes = 0;
   SPI.transfer(0);
   digitalWrite(pin, HIGH);
 }

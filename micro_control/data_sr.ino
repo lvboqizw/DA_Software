@@ -8,7 +8,9 @@ void btRecv() {
 
     String recMessage = extractData(recData);
     if (calculateChecksum(recMessage) != extractChecksum(recData)) {
-      Serial.println("Uncorrect message");
+      Serial.print("Uncorrect message: ");
+      Serial.println(recMessage);
+      clearBTSerialBuffer();
       BTSerial.write("R");
       return;
     }
@@ -18,7 +20,8 @@ void btRecv() {
   }
 
   if (message.length() != 0) {
-    // Serial.println(message);
+    Serial.println(message);
+    // message = "";
     trigger();
   }
 }
@@ -96,5 +99,13 @@ void activeRings(int rings) {
 }
 
 void writeNodes(int nodes) {
+  Serial.print("Write node: ");
   ringI.setNodes(nodes);
+  Serial.println(ringI.getNodes());
+}
+
+void clearBTSerialBuffer() {
+    while (BTSerial.available()) {
+        BTSerial.read();
+    }
 }

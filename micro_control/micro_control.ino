@@ -33,11 +33,13 @@ void loop() {
   checkBtn();
 
   if (start) {
-    processing();
+    // processing();
+    running();
   } else {
     run = false;
     heater.stopHeat();
     ringI.stopVib();
+    // ringI.off();
     digitalWrite(readyPin, LOW);
   }
 }
@@ -78,5 +80,27 @@ void processing() {
     } else {
       Serial.println("Not Ready");
     }
+  }
+}
+
+void running() {
+  int curTemperature = sensorT.getTemperature();
+  heater.setCur(curTemperature);
+  sendEverySec(String(curTemperature)); 
+
+  btRecv();
+
+  heater.preHeat();
+  if (heater.checkReady()) {
+    digitalWrite(readyPin, HIGH);
+  } else {
+    digitalWrite(readyPin, LOW);
+  }
+
+  if (heater.checkReady()) {
+    heater.heat();
+    ringI.vib();
+  } else {
+    Serial.println("Not Ready");
   }
 }

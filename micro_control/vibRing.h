@@ -9,6 +9,7 @@ class VibRing {
   public: 
     VibRing(int p);
     void setNodes(int n);
+    int getNodes();
     void vib();
     void stopVib();
     void on();

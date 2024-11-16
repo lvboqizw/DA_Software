@@ -1,4 +1,4 @@
-#ifndef HEATER_H
+ #ifndef HEATER_H
 #define HEATER_H
 
 #define DEFAULT_TEMPERATURE 39

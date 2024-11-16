@@ -20,8 +20,6 @@ public class ButtonHandler {
     private Uri uri;
     private final AtomicInteger round = new AtomicInteger();
 
-//    private boolean isConnected = false;
-
     public ButtonHandler(Context context, BltManager.BluetoothCallback bluetoothCallback) {
         this.context = context;
         bluetoothManager = new BltManager(bluetoothCallback);
@@ -106,7 +104,7 @@ public class ButtonHandler {
                 bluetoothManager.sendMessageRetry(message);
 
                 String process = Integer.toString(curRound + 1) + "/"
-                        + Integer.toString(trigger.getTotalRound());
+                        + Integer.toString(Constants.TEST_ROUNDS);
                 roundText.setText("Round: " + process);
                 ringText.setText("Ring: " + toBinary(ring, 3));
                 nodeText.setText("Node: " + toBinary(node, 6));
@@ -115,6 +113,69 @@ public class ButtonHandler {
                 Toast.makeText(context,
                         "Ten Rounds finished", Toast.LENGTH_SHORT).show();
             }
+        }
+    }
+
+    @SuppressLint("SetTextI18n")
+    public void btnVibrate(String mode, TextView roundText, TextView nodeText,
+                           TextView ringText, ProgressBar processBar, int vibTime) {
+        Handler handler = new Handler();
+
+        if (mode.equals("FLOW")) {
+            final int[] node = {1};
+            final int[] progress = {0};
+            processBar.setMax(6);
+
+            Runnable runnable = new Runnable() {
+                @SuppressLint("SetTextI18n")
+                @Override
+                public void run() {
+                    if (node[0] <= 32) {
+                        processBar.setProgress(++progress[0]);
+                        bluetoothManager.sendMessageRetry("M/1/" + node[0]);
+                        node[0] <<= 1;
+
+                        handler.postDelayed(this, vibTime * 1000L);
+                    } else {
+                        bluetoothManager.sendMessageRetry("M/1/0");
+                    }
+                }
+            };
+            handler.post(runnable);
+        } else {
+            if (uri == null) {
+                Toast.makeText(context,
+                        "Press Set first", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            int curRound = round.getAndIncrement();
+            processBar.setMax(Constants.TEST_ROUNDS);
+            if (curRound < Constants.TEST_ROUNDS) {
+                String ring = trigger.getRing(curRound);
+                String node = trigger.getNode(curRound);
+
+                processBar.setProgress(curRound + 1);
+                roundText.setText("Round: " + String.valueOf(curRound + 1) + " Vibrating");
+                ringText.setText("Ring: " + toBinary(ring, 3));
+                nodeText.setText("Node: " + toBinary(node, 6));
+                String message = "M/" + ring + "/" + node;
+                bluetoothManager.sendMessageRetry(message);
+//                Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                    bluetoothManager.sendMessageRetry("M/0/0");
+//                        Toast.makeText(context, "M/0/0", Toast.LENGTH_SHORT).show();
+                        roundText.setText("Round: " + String.valueOf(curRound + 1) + " Stopped");
+                    }
+                }, vibTime * 1000L);
+            } else {
+                Toast.makeText(context,
+                        "Ten Rounds finished", Toast.LENGTH_SHORT).show();
+            }
+
         }
     }
 

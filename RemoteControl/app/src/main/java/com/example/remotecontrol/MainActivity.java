@@ -24,7 +24,7 @@ public class MainActivity extends AppCompatActivity
     private Spinner spinnerMode;
     private EditText editTextNr;
     private boolean isConnected = false;
-    private ProgressBar timerBar;
+    private ProgressBar processBar;
 
     private ButtonHandler buttonHandler;
 
@@ -36,15 +36,20 @@ public class MainActivity extends AppCompatActivity
 
         Button setButton = findViewById(R.id.btn_set);
         Button runButton = findViewById(R.id.btn_run);
+        Button vibButton = findViewById(R.id.btn_vib);
         SeekBar seekBarTemp = findViewById(R.id.skBar_temperature);
+
+        EditText vibTimeText = findViewById(R.id.vib_time);
+        vibTimeText.setText(String.valueOf(Constants.DEFAULT_VIBE_TIME));
 
         connectButton = findViewById(R.id.btn_connect);
         bluetoothManager = new BltManager(this);
         spinnerGender = findViewById(R.id.gender);
         spinnerMode = findViewById(R.id.mode);
         editTextNr = findViewById(R.id.number);
-        timerBar = findViewById(R.id.timer);
-        timerBar.setProgress(0);
+        processBar = findViewById(R.id.process);
+        processBar.setMax(Constants.TEST_ROUNDS);
+        processBar.setProgress(0);
 
         buttonHandler = new ButtonHandler(this, this);
 
@@ -67,7 +72,16 @@ public class MainActivity extends AppCompatActivity
             TextView roundText = findViewById(R.id.monitor_round);
             TextView nodeText = findViewById(R.id.monitor_node);
             TextView ringText = findViewById(R.id.monitor_ring);
-            buttonHandler.btnRun(mode, roundText, nodeText, ringText, timerBar);
+            buttonHandler.btnRun(mode, roundText, nodeText, ringText, processBar);
+        });
+
+        vibButton.setOnClickListener(v -> {
+            int vibTime = Integer.parseInt(vibTimeText.getText().toString());
+            String mode = spinnerMode.getSelectedItem().toString();
+            TextView roundText = findViewById(R.id.monitor_round);
+            TextView nodeText = findViewById(R.id.monitor_node);
+            TextView ringText = findViewById(R.id.monitor_ring);
+            buttonHandler.btnVibrate(mode, roundText, nodeText, ringText, processBar, vibTime);
         });
     }
 
@@ -95,9 +109,6 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void onMessageReceived(String message) {
-        if (message.equals("ACK")) {
-            buttonHandler.roundIncrement();
-        }
         if (message.contains("T")) {
             updateTemperature(message);
         }
@@ -119,7 +130,8 @@ public class MainActivity extends AppCompatActivity
                 String message = type + "/" + progress;
                 bluetoothManager.sendMessageRetry(message);
                 if (type.equals("T")) {
-                    String temperature = Integer.toString(Constants.DEFAULT_TEMPERATURE + progress);
+                    String temperature = Integer.toString(
+                            Constants.DEFAULT_TEMPERATURE + progress);
                     updateMonitor(R.id.monitor_temperature,
                             "Temperature: "
                                     + temperature);

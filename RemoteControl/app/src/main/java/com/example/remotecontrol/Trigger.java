@@ -3,10 +3,8 @@ package com.example.remotecontrol;
 import java.util.Random;
 
 public class Trigger {
-    private final int TEST_ROUNDS = 10;
-
-    private String ringNr[] = new String [TEST_ROUNDS];
-    private String[] triggerList = new String[TEST_ROUNDS];
+    private final String[] ringNr = new String [Constants.TEST_ROUNDS];
+    private final String[] triggerList = new String[Constants.TEST_ROUNDS];
     private static final Random random = new Random();
 
 
@@ -45,15 +43,11 @@ public class Trigger {
         return triggerList[round];
     }
 
-    public int getTotalRound() {
-        return TEST_ROUNDS;
-    }
-
     /**
      * Test Functionality
      * */
     private void modeTest() {
-        for (int i = 0; i < TEST_ROUNDS; i ++) {
+        for (int i = 0; i < Constants.TEST_ROUNDS; i ++) {
             ringNr[i] = "1";
             triggerList[i] = "1";
         }
@@ -63,7 +57,7 @@ public class Trigger {
      * Random single point on the wrist one
      * */
     private void modeOne() {
-        for (int i = 0; i < TEST_ROUNDS; i ++) {
+        for (int i = 0; i < Constants.TEST_ROUNDS; i ++) {
             ringNr[i] = "1";
             StringBuilder nodes = new StringBuilder();
             int res = 0b00000000;
@@ -78,7 +72,7 @@ public class Trigger {
      * Random multi points on the wrist one
      * */
     private void modeTwo() {
-        for (int i = 0; i < TEST_ROUNDS; i ++) {
+        for (int i = 0; i < Constants.TEST_ROUNDS; i ++) {
             ringNr[i] = "1";
 
             int nodeNum = random.nextInt(5) + 2;
@@ -97,7 +91,7 @@ public class Trigger {
      * Single or two same points on all wrist
      * */
     private void modeThree() {
-        for (int i = 0; i < TEST_ROUNDS; i ++) {
+        for (int i = 0; i < Constants.TEST_ROUNDS; i ++) {
             ringNr[i] = "7";
 
             StringBuilder nodes = new StringBuilder();
@@ -116,7 +110,7 @@ public class Trigger {
      * Multi random points on multi random wrist
      * */
     private void modeFour() {
-        for (int i = 0; i < TEST_ROUNDS; i ++) {
+        for (int i = 0; i < Constants.TEST_ROUNDS; i ++) {
             int wristNr = random.nextInt(3) + 1;
             StringBuilder wrists = new StringBuilder();
             int wrist_res = 0b00000000;
