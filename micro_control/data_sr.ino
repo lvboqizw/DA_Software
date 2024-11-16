@@ -1,4 +1,3 @@
-String type;
 String message = "";
 
 void btRecv() {
@@ -20,22 +19,28 @@ void btRecv() {
   }
 
   if (message.length() != 0) {
-    // Serial.println(message);
-    // message = "";
     trigger();
   }
 }
 
 void trigger() {
-  type = message[0];
-  type.trim();
-  switch (type[0]) {
-    case 'M':
-      sliptMessage();
-      break;
+  String messagePartI = "";
+  String messagePartII = "";
+
+  sliptMessage(messagePartI, messagePartII);
+  switch (message[0]) {
     case 'T':
-      Serial.print("SetTemeprature: ");
-      Serial.println(message[2]);
+      if (messagePartI.equals("N")) {
+        activeHeater(messagePartII.toInt());
+      } else if (messagePartI.equals("F")) {
+        deactiveHeater();
+      }
+      break;
+    case 'M':
+      int rings = messagePartI.toInt();
+      activeRings(rings);
+      int nodes = messagePartII.toInt();
+      writeNodes(nodes);
       break;
     default:
       Serial.println("Wrong message");
@@ -71,14 +76,12 @@ void sendEverySec(String msg) {
   }
 }
 
-void sliptMessage() {
+void sliptMessage(String &partI, String &partII) {
   int firstSlash = message.indexOf('/');
   int secondSlash = message.indexOf('/', firstSlash + 1);
 
-  int rings = message.substring(firstSlash + 1, secondSlash).toInt();
-  activeRings(rings);
-  int nodes = message.substring(secondSlash + 1).toInt();
-  writeNodes(nodes);
+  partI = message.substring(firstSlash + 1, secondSlash);
+  partII = message.substring(secondSlash + 1);
 }
 
 void activeRings(int rings) {
@@ -93,6 +96,15 @@ void writeNodes(int nodes) {
   Serial.print("Write node: ");
   ringI.setNodes(nodes);
   Serial.println(ringI.getNodes());
+}
+
+void activeHeater(int target) {
+  heater.on();
+  heater.setTarget(target);
+}
+
+void deactiveHeater() {
+  heater.off();
 }
 
 void clearBTSerialBuffer() {

@@ -11,8 +11,9 @@ SoftwareSerial BTSerial (4, 3); // RX, TX
 
 unsigned long messageFlag = 0;
 
-bool run = false;
+// bool run = false;
 bool start = false;
+bool heat = false;
 
 const int btnPin = 9;
 const int readyPin = 10;
@@ -32,6 +33,7 @@ void loop() {
   checkBtn();
 
   if (start) {
+    digitalWrite(readyPin, HIGH);
     running();
   } else {
     heater.stopHeat();
@@ -49,23 +51,14 @@ void checkBtn() {
 }
 
 void running() {
-  int curTemperature = sensorT.getTemperature();
-  heater.setCur(curTemperature);
-  sendEverySec(String(curTemperature)); 
+  int curTemperature = (int)sensorT.getTemperature();
+  if (curTemperature > 10 && curTemperature < 45) {
+    heater.setCur(curTemperature);
+    sendEverySec(String(curTemperature));
+  }
 
   btRecv();
 
-  heater.preHeat();
-  if (heater.checkReady()) {
-    digitalWrite(readyPin, HIGH);
-  } else {
-    digitalWrite(readyPin, LOW);
-  }
-
-  if (heater.checkReady()) {
-    heater.heat();
-    ringI.vib();
-  } else {
-    Serial.println("Not Ready");
-  }
+  heater.heat();
+  ringI.vib();
 }

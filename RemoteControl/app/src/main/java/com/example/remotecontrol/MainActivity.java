@@ -18,7 +18,6 @@ import java.util.regex.Pattern;
 public class MainActivity extends AppCompatActivity
         implements BltManager.BluetoothCallback {
 
-    private BltManager bluetoothManager;
     private Button connectButton;
     private Spinner spinnerGender;
     private Spinner spinnerMode;
@@ -36,13 +35,13 @@ public class MainActivity extends AppCompatActivity
 
         Button setButton = findViewById(R.id.btn_set);
         Button vibButton = findViewById(R.id.btn_vib);
+        Button btnHeat = findViewById(R.id.btn_heat);
         SeekBar seekBarTemp = findViewById(R.id.skBar_temperature);
 
         EditText vibTimeText = findViewById(R.id.vib_time);
         vibTimeText.setText(String.valueOf(Constants.DEFAULT_VIBE_TIME));
 
         connectButton = findViewById(R.id.btn_connect);
-        bluetoothManager = new BltManager(this);
         spinnerGender = findViewById(R.id.gender);
         spinnerMode = findViewById(R.id.mode);
         editTextNr = findViewById(R.id.number);
@@ -56,8 +55,6 @@ public class MainActivity extends AppCompatActivity
         connectButton.setOnClickListener(v -> {
             buttonHandler.btnConnection(isConnected);
         });
-
-        setSeekBarListener(seekBarTemp, "T");
 
         setButton.setOnClickListener(v -> {
             String mode = spinnerMode.getSelectedItem().toString();
@@ -73,6 +70,18 @@ public class MainActivity extends AppCompatActivity
             TextView nodeText = findViewById(R.id.monitor_node);
             TextView ringText = findViewById(R.id.monitor_ring);
             buttonHandler.btnVibrate(mode, roundText, nodeText, ringText, processBar, vibTime);
+        });
+
+        btnHeat.setOnClickListener(v -> {
+            int extraTemp = seekBarTemp.getProgress();
+            boolean heat = buttonHandler.btnHeat(String.valueOf(extraTemp));
+            if (heat) {
+                btnHeat.setBackgroundColor(getResources()
+                        .getColor(R.color.green));
+            } else {
+                btnHeat.setBackgroundColor(getResources()
+                        .getColor(R.color.warning_red));
+            }
         });
     }
 
@@ -103,32 +112,6 @@ public class MainActivity extends AppCompatActivity
         if (message.contains("T")) {
             updateTemperature(message);
         }
-    }
-
-    private void setSeekBarListener(SeekBar seekBar, String type) {
-        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                int progress = seekBar.getProgress();
-                String message = type + "/" + progress;
-                bluetoothManager.sendMessageRetry(message);
-                if (type.equals("T")) {
-                    String temperature = Integer.toString(
-                            Constants.DEFAULT_TEMPERATURE + progress);
-                    updateMonitor(R.id.monitor_temperature,
-                            "Temperature: "
-                                    + temperature);
-                }
-            }
-        });
     }
 
     private void updateMonitor(int id, String message) {

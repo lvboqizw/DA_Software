@@ -7,7 +7,7 @@
     <string name="gender">Gender</string>
     <string name="temperature">Temperature:</string>
     <string name="min_temperature">+0</string>
-    <string name="max_temperature">+6</string>
+    <string name="max_temperature">+15</string>
     <string name="p_ten">+10</string>
     <string name="modes">Mode</string>
     <string name="set">Set</string>

@@ -13,7 +13,7 @@ class SensorT {
 
   public:
     SensorT(int p);
-    int getTemperature();
+    float getTemperature();
 
 };
 

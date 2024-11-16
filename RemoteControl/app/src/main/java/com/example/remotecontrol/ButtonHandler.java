@@ -19,6 +19,7 @@ public class ButtonHandler {
     private final Trigger trigger;
     private Uri uri;
     private final AtomicInteger round = new AtomicInteger();
+    private boolean heat = false;
 
     public ButtonHandler(Context context, BltManager.BluetoothCallback bluetoothCallback) {
         this.context = context;
@@ -115,6 +116,18 @@ public class ButtonHandler {
                         "Ten Rounds finished", Toast.LENGTH_SHORT).show();
             }
 
+        }
+    }
+
+    public boolean btnHeat(String extraTemperature) {
+        if (!heat) {
+            bluetoothManager.sendMessageRetry("T/N/" + extraTemperature);
+            heat = true;
+            return true;
+        } else {
+            bluetoothManager.sendMessageRetry("T/F/" + extraTemperature);
+            heat = false;
+            return false;
         }
     }
 

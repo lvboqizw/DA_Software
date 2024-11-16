@@ -8,6 +8,7 @@ class Heater {
     int pin;
     int targetTemperature;
     int curTemperature;
+    int active;
     bool ready;
 
   public:
@@ -18,6 +19,8 @@ class Heater {
     bool checkReady();
     void setTarget(int target);
     void setCur(int cur);
+    void on();
+    void off();
 };
 
 #endif
