@@ -58,65 +58,6 @@ public class ButtonHandler {
     }
 
     @SuppressLint("SetTextI18n")
-    public void btnRun(String mode, TextView roundText, TextView nodeText,
-                       TextView ringText, ProgressBar timerBar) {
-        if (mode.equals("FLOW")) {
-            Handler handler = new Handler();
-            final int[] node = {1};
-            final int[] timer = {2};
-            long startTime = System.currentTimeMillis();
-
-            Runnable runnable = new Runnable() {
-                @SuppressLint("SetTextI18n")
-                @Override
-                public void run() {
-                    long elapsedTime = System.currentTimeMillis() - startTime;
-                    if (elapsedTime < 8000) {
-                        bluetoothManager.sendMessageRetry("M/1/" + node[0]);
-                        nodeText.setText("Node: " +
-                                toBinary(String.valueOf(node[0]), 6));
-                        ringText.setText("Ring: 001");
-
-                        timerBar.setProgress(timer[0]);
-
-                        node[0] <<= 1;
-                        if (node[0] > 32) {
-                            node[0] = 1;
-                        }
-                        timer[0] += 2;
-
-                        handler.postDelayed(this, 2000);
-                    }
-                }
-            };
-            handler.post(runnable);
-        } else {
-            if (uri == null) {
-                Toast.makeText(context,
-                        "Press Set first", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            int curRound = round.get();
-            if (curRound < 10) {
-                String ring = trigger.getRing(curRound);
-                String node = trigger.getNode(curRound);
-                String message = "M/" + ring + "/" + node;
-                bluetoothManager.sendMessageRetry(message);
-
-                String process = Integer.toString(curRound + 1) + "/"
-                        + Integer.toString(Constants.TEST_ROUNDS);
-                roundText.setText("Round: " + process);
-                ringText.setText("Ring: " + toBinary(ring, 3));
-                nodeText.setText("Node: " + toBinary(node, 6));
-
-            } else {
-                Toast.makeText(context,
-                        "Ten Rounds finished", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
-
-    @SuppressLint("SetTextI18n")
     public void btnVibrate(String mode, TextView roundText, TextView nodeText,
                            TextView ringText, ProgressBar processBar, int vibTime) {
         Handler handler = new Handler();
@@ -161,13 +102,11 @@ public class ButtonHandler {
                 nodeText.setText("Node: " + toBinary(node, 6));
                 String message = "M/" + ring + "/" + node;
                 bluetoothManager.sendMessageRetry(message);
-//                Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
 
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
                     bluetoothManager.sendMessageRetry("M/0/0");
-//                        Toast.makeText(context, "M/0/0", Toast.LENGTH_SHORT).show();
                         roundText.setText("Round: " + String.valueOf(curRound + 1) + " Stopped");
                     }
                 }, vibTime * 1000L);
@@ -178,9 +117,6 @@ public class ButtonHandler {
 
         }
     }
-
-    public void roundIncrement() { round.incrementAndGet();}
-
 
     private String toBinary(String message, int len) {
         int value = Integer.parseInt(message);

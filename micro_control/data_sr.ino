@@ -20,7 +20,7 @@ void btRecv() {
   }
 
   if (message.length() != 0) {
-    Serial.println(message);
+    // Serial.println(message);
     // message = "";
     trigger();
   }
@@ -32,19 +32,10 @@ void trigger() {
   switch (type[0]) {
     case 'M':
       sliptMessage();
-      run = true;
-      markPoint = millis();
       break;
     case 'T':
       Serial.print("SetTemeprature: ");
       Serial.println(message[2]);
-      // setTemperature(message[2]);
-      break;
-    case 'V':
-      String numStr = message.substring(2);
-      int number = numStr.toInt();
-      Serial.print("Vibration: ");
-      Serial.println(number);
       break;
     default:
       Serial.println("Wrong message");

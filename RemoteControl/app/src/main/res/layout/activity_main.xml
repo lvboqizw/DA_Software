@@ -182,7 +182,6 @@
                 android:textSize="23sp"
                 android:backgroundTint="@color/dodgerBlue"/>
         </LinearLayout>
-
     </LinearLayout>
 
     <LinearLayout
@@ -236,20 +235,6 @@
             android:textSize="20sp"
             android:text="@string/node"
             android:layout_marginBottom="10dp"/>
-
     </LinearLayout>
-
-    <Button
-        android:id="@+id/btn_run"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/run"
-        android:textSize="25sp"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
-        android:layout_marginTop="15dp"
-        android:backgroundTint="@color/dodgerBlue"
-        app:layout_constraintTop_toBottomOf="@id/monitor"
-        app:layout_constraintBottom_toBottomOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

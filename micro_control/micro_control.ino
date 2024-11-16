@@ -10,7 +10,6 @@ VibRing ringI(6);
 SoftwareSerial BTSerial (4, 3); // RX, TX
 
 unsigned long messageFlag = 0;
-unsigned long markPoint = 0;
 
 bool run = false;
 bool start = false;
@@ -33,13 +32,10 @@ void loop() {
   checkBtn();
 
   if (start) {
-    // processing();
     running();
   } else {
-    run = false;
     heater.stopHeat();
     ringI.stopVib();
-    // ringI.off();
     digitalWrite(readyPin, LOW);
   }
 }
@@ -50,37 +46,6 @@ void checkBtn() {
     start = !start;
   }
   lastButtonState = currentButtonState;
-}
-
-void processing() {
-  int curTemperature = sensorT.getTemperature();
-  heater.setCur(curTemperature);
-  sendEverySec(String(curTemperature)); 
-
-  btRecv();
-
-  heater.preHeat();
-
-  if (heater.checkReady()) {
-    digitalWrite(readyPin, HIGH);
-  } else {
-    digitalWrite(readyPin, LOW);
-  }
-
-  if (run) {
-    if (heater.checkReady()) {
-      unsigned long curMillis = millis();
-      if (curMillis - markPoint < 15000) {
-        heater.heat();
-        ringI.vib();
-      } else {
-        run = false;
-        ringI.stopVib();
-      }
-    } else {
-      Serial.println("Not Ready");
-    }
-  }
 }
 
 void running() {

@@ -35,7 +35,6 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
 
         Button setButton = findViewById(R.id.btn_set);
-        Button runButton = findViewById(R.id.btn_run);
         Button vibButton = findViewById(R.id.btn_vib);
         SeekBar seekBarTemp = findViewById(R.id.skBar_temperature);
 
@@ -65,14 +64,6 @@ public class MainActivity extends AppCompatActivity
             String gender = spinnerGender.getSelectedItem().toString();
             String number = editTextNr.getText().toString();
             buttonHandler.btnSet(mode, gender, number);
-        });
-
-        runButton.setOnClickListener(v -> {
-            String mode = spinnerMode.getSelectedItem().toString();
-            TextView roundText = findViewById(R.id.monitor_round);
-            TextView nodeText = findViewById(R.id.monitor_node);
-            TextView ringText = findViewById(R.id.monitor_ring);
-            buttonHandler.btnRun(mode, roundText, nodeText, ringText, processBar);
         });
 
         vibButton.setOnClickListener(v -> {
