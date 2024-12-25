@@ -183,6 +183,15 @@
                 android:textSize="23sp"
                 android:backgroundTint="@color/dodgerBlue"/>
         </LinearLayout>
+
+        <Button
+            android:id="@+id/btn_run"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/run"
+            android:textSize="23sp"
+            android:backgroundTint="@color/dodgerBlue"/>
+
     </LinearLayout>
 
     <LinearLayout

@@ -25,7 +25,6 @@ public class MainActivity extends AppCompatActivity
     private EditText editTextNr;
     private boolean isConnected = false;
     private ProgressBar processBar;
-    private Logger logger;
 
     private ButtonHandler buttonHandler;
 
@@ -35,11 +34,13 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
-        logger = Logger.getInstance(this);
 
+        Logger logger = Logger.getInstance(this);
+        Logger.d("MainActivity started");
         Button setButton = findViewById(R.id.btn_set);
         Button vibButton = findViewById(R.id.btn_vib);
         Button btnHeat = findViewById(R.id.btn_heat);
+        Button runButton = findViewById(R.id.btn_run);
         SeekBar seekBarTemp = findViewById(R.id.skBar_temperature);
 
         EditText vibTimeText = findViewById(R.id.vib_time);
@@ -85,11 +86,7 @@ public class MainActivity extends AppCompatActivity
 
         vibButton.setOnClickListener(v -> {
             int vibTime = Integer.parseInt(vibTimeText.getText().toString());
-            String mode = spinnerMode.getSelectedItem().toString();
-            TextView roundText = findViewById(R.id.monitor_round);
-            TextView nodeText = findViewById(R.id.monitor_node);
-            TextView ringText = findViewById(R.id.monitor_ring);
-            buttonHandler.btnVibrate(mode, roundText, nodeText, ringText, processBar, vibTime);
+            buttonHandler.btnVibrate(vibTime);
         });
 
         btnHeat.setOnClickListener(v -> {
@@ -102,6 +99,17 @@ public class MainActivity extends AppCompatActivity
                 btnHeat.setBackgroundColor(getResources()
                         .getColor(R.color.warning_red));
             }
+        });
+
+        runButton.setOnClickListener(v -> {
+            int vibTime = Integer.parseInt(vibTimeText.getText().toString());
+            String mode = spinnerMode.getSelectedItem().toString();
+            TextView roundText = findViewById(R.id.monitor_round);
+            TextView nodeText = findViewById(R.id.monitor_node);
+            TextView ringText = findViewById(R.id.monitor_ring);
+            int extraTemp = seekBarTemp.getProgress();
+            buttonHandler.btnRun(mode, roundText, nodeText,
+                    ringText, processBar, vibTime, String.valueOf(extraTemp));
         });
     }
 

@@ -20,6 +20,7 @@ public class ButtonHandler {
     private Uri uri;
     private final AtomicInteger round = new AtomicInteger();
     private boolean heat = false;
+    private final Handler handler = new Handler();
 
     public ButtonHandler(Context context, BltManager.BluetoothCallback bluetoothCallback) {
         this.context = context;
@@ -38,19 +39,19 @@ public class ButtonHandler {
 
     public void btnSet(String mode, String gender, String number) {
         String filename;
-        if (number.isEmpty()) {
-            Toast.makeText(context,
-                    "Missing Number", Toast.LENGTH_SHORT).show();
-            return;
-        }
         if (mode.equals("Test")) {
             filename =  "0_NONE_TEST";
         } else {
+            if (number.isEmpty()) {
+                Toast.makeText(context,
+                        "Missing Number", Toast.LENGTH_SHORT).show();
+                return;
+            }
             filename = number + "_" + gender + "_" + mode;
         }
 
         FileUtils fileUtils = new FileUtils(context);
-        uri = fileUtils.getUri(filename);
+        uri = fileUtils.getUri(filename + ".json");
         trigger.generateTriggerList(mode);
         Gson gson = new Gson();
         String json = gson.toJson(trigger);
@@ -59,9 +60,34 @@ public class ButtonHandler {
     }
 
     @SuppressLint("SetTextI18n")
-    public void btnVibrate(String mode, TextView roundText, TextView nodeText,
-                           TextView ringText, ProgressBar processBar, int vibTime) {
-        Handler handler = new Handler();
+    public void btnVibrate(int vibTime) {
+        String message = "M/1/1";
+        bluetoothManager.sendMessageRetry(message);
+
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+            bluetoothManager.sendMessageRetry("M/0/0");
+//                    roundText.setText("Round: " + String.valueOf(curRound + 1) + " Stopped");
+            }
+        }, vibTime * 1000L);
+    }
+
+    public boolean btnHeat(String extraTemperature) {
+        if (!heat) {
+            bluetoothManager.sendMessageRetry("T/N/" + extraTemperature);
+            heat = true;
+            return true;
+        } else {
+            bluetoothManager.sendMessageRetry("T/F/" + extraTemperature);
+            heat = false;
+            return false;
+        }
+    }
+
+    @SuppressLint("SetTextI18n")
+    public void btnRun(String mode, TextView roundText, TextView nodeText, TextView ringText,
+                       ProgressBar processBar, int vibTime, String extraTemperature) {
 
         if (mode.equals("FLOW")) {
             final int[] node = {1};
@@ -91,6 +117,14 @@ public class ButtonHandler {
                 return;
             }
 
+            bluetoothManager.sendMessageRetry("T/N/" + extraTemperature);
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    bluetoothManager.sendMessageRetry("T/F/" + extraTemperature);
+                }
+            }, (vibTime + 3) * 1000L);
+
             int curRound = round.getAndIncrement();
             processBar.setMax(Constants.TEST_ROUNDS);
             if (curRound < Constants.TEST_ROUNDS) {
@@ -98,16 +132,16 @@ public class ButtonHandler {
                 String node = trigger.getNode(curRound);
 
                 processBar.setProgress(curRound + 1);
-                roundText.setText("Round: " + String.valueOf(curRound + 1) + " Vibrating");
+                roundText.setText("Round: " + (curRound + 1) + " Vibrating");
                 ringText.setText("Ring: " + toBinary(ring, 3));
                 nodeText.setText("Node: " + toBinary(node, 6));
                 String message = "M/" + ring + "/" + node;
                 bluetoothManager.sendMessageRetry(message);
 
-                new Handler().postDelayed(new Runnable() {
+                handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                    bluetoothManager.sendMessageRetry("M/0/0");
+                        bluetoothManager.sendMessageRetry("M/0/0");
                         roundText.setText("Round: " + String.valueOf(curRound + 1) + " Stopped");
                     }
                 }, vibTime * 1000L);
@@ -116,18 +150,6 @@ public class ButtonHandler {
                         "Ten Rounds finished", Toast.LENGTH_SHORT).show();
             }
 
-        }
-    }
-
-    public boolean btnHeat(String extraTemperature) {
-        if (!heat) {
-            bluetoothManager.sendMessageRetry("T/N/" + extraTemperature);
-            heat = true;
-            return true;
-        } else {
-            bluetoothManager.sendMessageRetry("T/F/" + extraTemperature);
-            heat = false;
-            return false;
         }
     }
 

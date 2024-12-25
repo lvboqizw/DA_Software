@@ -81,7 +81,6 @@ public class BltManager {
             try {
                 if (outputStream != null && isConnected) {
                     outputStream.write(message.getBytes());
-                    Logger.d("Sent data: " + message);
                     outputStream.flush();
                 }
             } catch (IOException e) {
@@ -143,6 +142,7 @@ public class BltManager {
         int checkSum = getCheckSum(message);
         String bag = String.format("%02X", checkSum) + message;
         new Thread(() -> {
+            Logger.d("Start send: " + message);
               while (!getAnACK && isConnected) {
                   try {
                       if (resend) {
@@ -157,6 +157,7 @@ public class BltManager {
               if (getAnACK) {
                   getAnACK = false;
                   resend = true;
+                  Logger.d("Finish send: " + message);
               }
         }).start();
     }

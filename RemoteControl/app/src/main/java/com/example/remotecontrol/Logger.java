@@ -1,42 +1,44 @@
 package com.example.remotecontrol;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class Logger {
     private static final String TAG = "Logger";
     private static final String LOG_FILE_NAME = "logfile.txt";
     private static Logger instance;
     private static File logFile;
+    private static Uri uri;
+    private static FileUtils fileUtils;
 
     private Logger(Context context) {
-        File logDir = new File(
-                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS),
-                context.getPackageName() + "/log");
-        if (!logDir.exists()) {
-            logDir.mkdirs();
-        }
-        logFile = new File(logDir, LOG_FILE_NAME);
+        fileUtils = new FileUtils(context);
+        uri = fileUtils.getUri("Logger.txt");
     }
 
     public static Logger getInstance(Context context) {
         if (instance == null) {
-            instance = new Logger(context.getApplicationContext());
+            instance = new Logger(context);
         }
         return instance;
     }
 
     private static void writeLog(String message) {
-        try (FileWriter writer = new FileWriter(logFile, true)) {
-            writer.append(message).append("\n");
-        } catch (IOException e) {
-            Log.e(TAG, "Failed to write logger file", e);
-        }
+        LocalDateTime currentDateTime = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        String formattedTime = currentDateTime.format(formatter);
+        String logMessage = "[" + formattedTime + "] " + message;
+        fileUtils.appendToUri(uri, logMessage);
     }
 
     public static void d(String message) {
