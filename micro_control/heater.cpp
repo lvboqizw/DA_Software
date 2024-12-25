@@ -1,11 +1,8 @@
 #include "heater.h"
 #include <Arduino.h>
 
-Heater::Heater(int p) {
-  pin = p;
+Heater::Heater(int p): pin(p), active(false) {
   pinMode(pin, OUTPUT);
-  targetTemperature = DEFAULT_TEMPERATURE;
-  active = false;
 }
 
 void Heater::heat() {
@@ -26,18 +23,11 @@ void Heater::stopHeat() {
   ready = false;
 }
 
-void Heater::preHeat() {
-  Heater::heat();
-  if(curTemperature > targetTemperature - 2.5) {
-    ready = true;
-  }
-}
-
-void Heater::setTarget(int target) {
+void Heater::setTarget(float target) {
   targetTemperature = curTemperature + target;
 }
 
-void Heater::setCur(int cur) {
+void Heater::setCur(float cur) {
   curTemperature = cur;
 }
 
@@ -47,8 +37,4 @@ void Heater::on() {
 
 void Heater::off() {
   active = false;
-}
-
-bool Heater::checkReady() {
-  return ready;
 }

@@ -23,7 +23,7 @@ public class ButtonHandler {
 
     public ButtonHandler(Context context, BltManager.BluetoothCallback bluetoothCallback) {
         this.context = context;
-        bluetoothManager = new BltManager(bluetoothCallback);
+        bluetoothManager = new BltManager(context, bluetoothCallback);
         trigger = new Trigger();
         round.set(0);
     }

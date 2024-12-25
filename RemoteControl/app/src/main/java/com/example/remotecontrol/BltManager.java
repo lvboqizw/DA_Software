@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -35,7 +36,7 @@ public class BltManager {
 
     private Handler handler = new Handler(Looper.getMainLooper());
 
-    public BltManager(BluetoothCallback callback) {
+    public BltManager(Context context, BluetoothCallback callback) {
         this.bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         this.callback = callback;
     }
@@ -80,6 +81,7 @@ public class BltManager {
             try {
                 if (outputStream != null && isConnected) {
                     outputStream.write(message.getBytes());
+                    Logger.d("Sent data: " + message);
                     outputStream.flush();
                 }
             } catch (IOException e) {

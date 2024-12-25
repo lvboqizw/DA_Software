@@ -25,6 +25,7 @@ public class MainActivity extends AppCompatActivity
     private EditText editTextNr;
     private boolean isConnected = false;
     private ProgressBar processBar;
+    private Logger logger;
 
     private ButtonHandler buttonHandler;
 
@@ -34,6 +35,7 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
+        logger = Logger.getInstance(this);
 
         Button setButton = findViewById(R.id.btn_set);
         Button vibButton = findViewById(R.id.btn_vib);

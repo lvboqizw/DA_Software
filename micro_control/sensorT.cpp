@@ -5,5 +5,5 @@ SensorT::SensorT(int p): myMax(p) {
 }
 
 float SensorT::getTemperature() {
-  return myMax.temperature(RNOMINAL, RREF) - 3.5;
+  return myMax.temperature(RNOMINAL, RREF)-4;
 }

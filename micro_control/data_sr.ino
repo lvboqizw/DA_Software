@@ -19,6 +19,7 @@ void btRecv() {
   }
 
   if (message.length() != 0) {
+    // Serial.println(message);
     trigger();
   }
 }
@@ -31,7 +32,7 @@ void trigger() {
   switch (message[0]) {
     case 'T':
       if (messagePartI.equals("N")) {
-        activeHeater(messagePartII.toInt());
+        activeHeater(messagePartII.toFloat());
       } else if (messagePartI.equals("F")) {
         deactiveHeater();
       }
@@ -98,7 +99,7 @@ void writeNodes(int nodes) {
   Serial.println(ringI.getNodes());
 }
 
-void activeHeater(int target) {
+void activeHeater(float target) {
   heater.on();
   heater.setTarget(target);
 }

@@ -25,7 +25,7 @@ void setup() {
   BTSerial.begin(115200);
 
   pinMode(btnPin, INPUT_PULLUP);
-  pinMode(btnPin, OUTPUT);
+  // pinMode(btnPin, OUTPUT);
   digitalWrite(readyPin, LOW);
 }
 
@@ -51,10 +51,10 @@ void checkBtn() {
 }
 
 void running() {
-  int curTemperature = (int)sensorT.getTemperature();
+  float curTemperature = sensorT.getTemperature();
   if (curTemperature > 10 && curTemperature < 45) {
     heater.setCur(curTemperature);
-    sendEverySec(String(curTemperature));
+    sendEverySec(String((int)curTemperature));
   }
 
   btRecv();
