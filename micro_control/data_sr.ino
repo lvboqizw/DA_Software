@@ -15,12 +15,14 @@ void btRecv() {
     }
     
     message = recMessage;
+    // Serial.println(recMessage);
     BTSerial.write("A");
   }
 
   if (message.length() != 0) {
     // Serial.println(message);
     trigger();
+    message = "";
   }
 }
 
@@ -46,7 +48,6 @@ void trigger() {
     default:
       Serial.println("Wrong message");
   }
-  message = "";
 }
 
 unsigned int calculateChecksum(const String &data) {

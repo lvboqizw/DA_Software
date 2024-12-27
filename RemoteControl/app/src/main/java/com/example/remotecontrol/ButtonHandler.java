@@ -24,7 +24,7 @@ public class ButtonHandler {
 
     public ButtonHandler(Context context, BltManager.BluetoothCallback bluetoothCallback) {
         this.context = context;
-        bluetoothManager = new BltManager(context, bluetoothCallback);
+        bluetoothManager = new BltManager(bluetoothCallback);
         trigger = new Trigger();
         round.set(0);
     }
@@ -62,24 +62,23 @@ public class ButtonHandler {
     @SuppressLint("SetTextI18n")
     public void btnVibrate(int vibTime) {
         String message = "M/1/1";
-        bluetoothManager.sendMessageRetry(message);
+        bluetoothManager.addToMessageQueue(message);
 
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-            bluetoothManager.sendMessageRetry("M/0/0");
-//                    roundText.setText("Round: " + String.valueOf(curRound + 1) + " Stopped");
+                bluetoothManager.addToMessageQueue("M/0/0");
             }
         }, vibTime * 1000L);
     }
 
     public boolean btnHeat(String extraTemperature) {
         if (!heat) {
-            bluetoothManager.sendMessageRetry("T/N/" + extraTemperature);
+            bluetoothManager.addToMessageQueue("T/N/" + extraTemperature);
             heat = true;
             return true;
         } else {
-            bluetoothManager.sendMessageRetry("T/F/" + extraTemperature);
+            bluetoothManager.addToMessageQueue("T/F/0");
             heat = false;
             return false;
         }
@@ -100,12 +99,12 @@ public class ButtonHandler {
                 public void run() {
                     if (node[0] <= 32) {
                         processBar.setProgress(++progress[0]);
-                        bluetoothManager.sendMessageRetry("M/1/" + node[0]);
+                        bluetoothManager.addToMessageQueue("M/1/" + node[0]);
                         node[0] <<= 1;
 
                         handler.postDelayed(this, vibTime * 1000L);
                     } else {
-                        bluetoothManager.sendMessageRetry("M/1/0");
+                        bluetoothManager.addToMessageQueue("M/1/0");
                     }
                 }
             };
@@ -117,13 +116,7 @@ public class ButtonHandler {
                 return;
             }
 
-            bluetoothManager.sendMessageRetry("T/N/" + extraTemperature);
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    bluetoothManager.sendMessageRetry("T/F/" + extraTemperature);
-                }
-            }, (vibTime + 3) * 1000L);
+            bluetoothManager.addToMessageQueue("T/N/" + extraTemperature);
 
             int curRound = round.getAndIncrement();
             processBar.setMax(Constants.TEST_ROUNDS);
@@ -136,12 +129,19 @@ public class ButtonHandler {
                 ringText.setText("Ring: " + toBinary(ring, 3));
                 nodeText.setText("Node: " + toBinary(node, 6));
                 String message = "M/" + ring + "/" + node;
-                bluetoothManager.sendMessageRetry(message);
 
                 handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        bluetoothManager.sendMessageRetry("M/0/0");
+                        bluetoothManager.addToMessageQueue(message);
+                    }
+                }, 3 * 1000L); // Start Vib 3 sec later
+
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        bluetoothManager.addToMessageQueue("M/0/0");
+                        bluetoothManager.addToMessageQueue("T/F/0");
                         roundText.setText("Round: " + String.valueOf(curRound + 1) + " Stopped");
                     }
                 }, vibTime * 1000L);
