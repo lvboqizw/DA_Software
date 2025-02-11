@@ -36,21 +36,35 @@
                 android:layout_width="wrap_content"
                 android:layout_height="48dp"
                 android:layout_weight="4"
-                android:inputType="number"/>
+                android:inputType="number"
+                android:layout_marginEnd="10dp"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/gender"
-                android:textSize="25sp"
-                android:layout_weight="1"/>
+                android:layout_weight="1"
+                android:text="@string/modes"
+                android:textSize="25sp" />
 
             <Spinner
-                android:id="@+id/gender"
+                android:id="@+id/mode"
                 android:layout_width="wrap_content"
                 android:layout_height="48dp"
-                android:layout_weight="4"
-                android:entries="@array/genders" />
+                android:layout_weight="1"
+                android:entries="@array/tests"/>
+<!--            <TextView-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:text="@string/gender"-->
+<!--                android:textSize="25sp"-->
+<!--                android:layout_weight="1"/>-->
+
+<!--            <Spinner-->
+<!--                android:id="@+id/gender"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="48dp"-->
+<!--                android:layout_weight="4"-->
+<!--                android:entries="@array/genders" />-->
         </LinearLayout>
 
         <TextView
@@ -96,19 +110,19 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="15dp">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/modes"
-                android:textSize="25sp" />
+<!--            <TextView-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_weight="1"-->
+<!--                android:text="@string/modes"-->
+<!--                android:textSize="25sp" />-->
 
-            <Spinner
-                android:id="@+id/mode"
-                android:layout_width="wrap_content"
-                android:layout_height="48dp"
-                android:layout_weight="1"
-                android:entries="@array/tests"/>
+<!--            <Spinner-->
+<!--                android:id="@+id/mode"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="48dp"-->
+<!--                android:layout_weight="1"-->
+<!--                android:entries="@array/tests"/>-->
         </LinearLayout>
 
     <LinearLayout

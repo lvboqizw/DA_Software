@@ -37,7 +37,7 @@ public class ButtonHandler {
         }
     }
 
-    public void btnSet(String mode, String gender, String number) {
+    public void btnSet(String mode, String number) {
         String filename;
         if (mode.equals("Test")) {
             filename =  "0_NONE_TEST";
@@ -47,7 +47,7 @@ public class ButtonHandler {
                         "Missing Number", Toast.LENGTH_SHORT).show();
                 return;
             }
-            filename = number + "_" + gender + "_" + mode;
+            filename = number + "_" + "_" + mode;
         }
 
         FileUtils fileUtils = new FileUtils(context);

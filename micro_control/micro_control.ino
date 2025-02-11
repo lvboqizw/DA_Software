@@ -52,10 +52,10 @@ void checkBtn() {
 
 void running() {
   float curTemperature = sensorT.getTemperature();
-  if (curTemperature > 10 && curTemperature < 45) {
-    heater.setCur(curTemperature);
-    sendEverySec(String((int)curTemperature));
-  }
+  // if (curTemperature > 10 && curTemperature < 45) {
+  heater.setCur(curTemperature);
+  sendEverySec(String((int)curTemperature));
+  // }
 
   btRecv();
 

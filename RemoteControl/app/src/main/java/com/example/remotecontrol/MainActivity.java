@@ -20,7 +20,6 @@ public class MainActivity extends AppCompatActivity
         implements BltManager.BluetoothCallback {
 
     private Button connectButton;
-    private Spinner spinnerGender;
     private Spinner spinnerMode;
     private EditText editTextNr;
     private boolean isConnected = false;
@@ -48,7 +47,6 @@ public class MainActivity extends AppCompatActivity
         vibTimeText.setText(String.valueOf(Constants.DEFAULT_VIBE_TIME));
 
         connectButton = findViewById(R.id.btn_connect);
-        spinnerGender = findViewById(R.id.gender);
         spinnerMode = findViewById(R.id.mode);
         editTextNr = findViewById(R.id.number);
         processBar = findViewById(R.id.process);
@@ -79,9 +77,8 @@ public class MainActivity extends AppCompatActivity
 
         setButton.setOnClickListener(v -> {
             String mode = spinnerMode.getSelectedItem().toString();
-            String gender = spinnerGender.getSelectedItem().toString();
             String number = editTextNr.getText().toString();
-            buttonHandler.btnSet(mode, gender, number);
+            buttonHandler.btnSet(mode, number);
         });
 
         vibButton.setOnClickListener(v -> {
