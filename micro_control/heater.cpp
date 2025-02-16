@@ -1,15 +1,18 @@
 #include "heater.h"
 #include <Arduino.h>
 
-Heater::Heater(int p): pin(p), active(false) {
+Heater::Heater(int p): pin(p), active(false),
+  myPID(&curTemperature, &output, &targetTemperature, Kp, Ki, Kd, DIRECT) {
   pinMode(pin, OUTPUT);
+  myPID.SetMode(AUTOMATIC);
+  myPID.SetOutputLimits(0, 100);
 }
 
 void Heater::heat() {
   if (active) {
-    if(curTemperature < targetTemperature - 1.5) {
+    if(output >= onThreshold) {
       digitalWrite(pin, HIGH);
-    } else if(curTemperature > targetTemperature - 0.5) {
+    } else if(curTemperature <= offThreshold ) {
       digitalWrite(pin, LOW);
     }
   } else {
@@ -24,11 +27,12 @@ void Heater::stopHeat() {
 }
 
 void Heater::setTarget(float target) {
-  targetTemperature = curTemperature + target;
+  targetTemperature = BASE_TEMPERATURE + target;
 }
 
 void Heater::setCur(float cur) {
   curTemperature = cur;
+  myPID.Compute();
 }
 
 void Heater::on() {

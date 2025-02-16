@@ -11,7 +11,6 @@ SoftwareSerial BTSerial (4, 3); // RX, TX
 
 unsigned long messageFlag = 0;
 
-// bool run = false;
 bool start = false;
 bool heat = false;
 
@@ -52,10 +51,8 @@ void checkBtn() {
 
 void running() {
   float curTemperature = sensorT.getTemperature();
-  if (curTemperature > 10 && curTemperature < 45) {
-    heater.setCur(curTemperature);
-    sendEverySec(String((int)curTemperature));
-  }
+  heater.setCur(curTemperature);
+  sendEverySec(String((int)curTemperature));
 
   btRecv();
 

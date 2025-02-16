@@ -101,8 +101,8 @@ void writeNodes(int nodes) {
 }
 
 void activeHeater(float target) {
-  heater.on();
   heater.setTarget(target);
+  heater.on();
 }
 
 void deactiveHeater() {
