@@ -19,40 +19,6 @@
         android:layout_marginEnd="10dp"
         android:layout_marginBottom="10dp">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="15dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/number"
-                android:textSize="25sp"
-                android:layout_weight="1"/>
-
-            <EditText
-                android:id="@+id/number"
-                android:layout_width="wrap_content"
-                android:layout_height="48dp"
-                android:layout_weight="4"
-                android:inputType="number"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/gender"
-                android:textSize="25sp"
-                android:layout_weight="1"/>
-
-            <Spinner
-                android:id="@+id/gender"
-                android:layout_width="wrap_content"
-                android:layout_height="48dp"
-                android:layout_weight="4"
-                android:entries="@array/genders" />
-        </LinearLayout>
-
         <TextView
             android:id="@+id/extra_Temperature"
             android:layout_width="wrap_content"
@@ -95,42 +61,174 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="15dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/mode"
+                android:textSize="25sp"
+                android:layout_weight="1"/>
+
+            <RadioGroup
+                android:id="@+id/mode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/modeNode"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/node"
+                    android:textSize="25sp"
+                    android:checked="true"
+                    android:layout_marginEnd="15dp"/>  <!-- 默认选中 -->
+
+                <RadioButton
+                    android:id="@+id/modeFlow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="25sp"
+                    android:text="@string/flow"
+                    android:layout_marginEnd="15dp"/>
+            </RadioGroup>
+        </LinearLayout>
+
+
+
+        <LinearLayout
+            android:id="@+id/layoutNode"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="15dp"
+            android:visibility="visible">
+
+            <!-- 第一行：TextView -->
+            <TextView
+                android:id="@+id/node_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/node"
+                android:textSize="25sp"
+                android:layout_marginBottom="8dp"
+                android:layout_gravity="start"/>
+
+            <!-- 第二行：六个 CheckBox 水平排列 -->
+            <GridLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:columnCount="6"
+                android:rowCount="1"
+                android:alignmentMode="alignMargins"
+                android:useDefaultMargins="true">
+
+                <CheckBox
+                    android:id="@+id/nodeOne"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/one"
+                    android:textSize="25sp"
+                    android:checked="true"/>
+
+                <CheckBox
+                    android:id="@+id/nodeTwo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/two"
+                    android:textSize="25sp"/>
+
+                <CheckBox
+                    android:id="@+id/nodeThree"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/three"
+                    android:textSize="25sp"/>
+
+                <CheckBox
+                    android:id="@+id/nodeFour"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/four"
+                    android:textSize="25sp"/>
+
+                <CheckBox
+                    android:id="@+id/nodeFive"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/five"
+                    android:textSize="25sp"/>
+
+                <CheckBox
+                    android:id="@+id/nodeSix"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/six"
+                    android:textSize="25sp"/>
+            </GridLayout>
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:id="@+id/layoutFlow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="15dp"
+            android:visibility="gone">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/modes"
-                android:textSize="25sp" />
+                android:text="@string/flow"
+                android:textSize="25sp"
+                android:layout_weight="1"/>
 
-            <Spinner
-                android:id="@+id/mode"
+            <RadioGroup
+                android:id="@+id/flow"
                 android:layout_width="wrap_content"
-                android:layout_height="48dp"
-                android:layout_weight="1"
-                android:entries="@array/tests"/>
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/flowLeft"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/left"
+                    android:textSize="25sp"
+                    android:checked="true"
+                    android:layout_marginEnd="15dp"/>  <!-- 默认选中 -->
+
+                <RadioButton
+                    android:id="@+id/flowRight"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="25sp"
+                    android:text="@string/right"
+                    android:layout_marginEnd="15dp"/>
+            </RadioGroup>
+
         </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="15dp">
-
-        <TextView
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/vibTime"
-            android:textSize="25sp"
-            android:layout_weight="1"/>
+            android:layout_marginBottom="15dp">
 
-        <EditText
-            android:id="@+id/vib_time"
-            android:layout_width="wrap_content"
-            android:layout_height="48dp"
-            android:layout_weight="4"
-            android:hint="Default 8s"
-            android:inputType="number"/>
-    </LinearLayout>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/vibTime"
+                android:textSize="25sp"
+                android:layout_weight="1"/>
+
+            <EditText
+                android:id="@+id/vib_time"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:layout_weight="4"
+                android:hint="Default 8s"
+                android:inputType="number"/>
+        </LinearLayout>
 
         <LinearLayout
             style="?android:attr/buttonBarStyle"
@@ -148,14 +246,14 @@
                 android:backgroundTint="@color/warning_red"
                 android:layout_marginEnd="10dp"/>
 
-            <Button
-                android:id="@+id/btn_set"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/set"
-                android:textSize="23sp"
-                android:backgroundTint="@color/dodgerBlue"/>
+<!--            <Button-->
+<!--                android:id="@+id/btn_set"-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_weight="1"-->
+<!--                android:text="@string/set"-->
+<!--                android:textSize="23sp"-->
+<!--                android:backgroundTint="@color/dodgerBlue"/>-->
         </LinearLayout>
 
         <LinearLayout
@@ -215,36 +313,13 @@
             android:padding="20dp" />
 
         <TextView
-            android:id="@+id/monitor_round"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="20sp"
-            android:text="@string/round"
-            android:layout_marginBottom="10dp"/>
-
-        <TextView
             android:id="@+id/monitor_temperature"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="20sp"
+            android:textSize="25sp"
             android:text="@string/temperature"
             android:layout_marginBottom="10dp"/>
 
-        <TextView
-            android:id="@+id/monitor_ring"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="20sp"
-            android:text="@string/ring"
-            android:layout_marginBottom="10dp"/>
-
-        <TextView
-            android:id="@+id/monitor_node"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="20sp"
-            android:text="@string/node"
-            android:layout_marginBottom="10dp"/>
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

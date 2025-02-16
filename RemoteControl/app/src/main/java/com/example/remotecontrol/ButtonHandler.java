@@ -1,11 +1,8 @@
 package com.example.remotecontrol;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Handler;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -59,17 +56,12 @@ public class ButtonHandler {
         round.set(0);
     }
 
-    @SuppressLint("SetTextI18n")
-    public void btnVibrate(int vibTime) {
-        String message = "M/1/1";
-        bluetoothManager.addToMessageQueue(message);
-
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                bluetoothManager.addToMessageQueue("M/0/0");
-            }
-        }, vibTime * 1000L);
+    public void btnVib(int vibTime, String nodes, boolean isNode, boolean isLeft) {
+        if (isNode) {
+            vibNode(vibTime, nodes);
+        } else {
+            vibFlow(vibTime, isLeft);
+        }
     }
 
     public boolean btnHeat(String extraTemperature) {
@@ -84,87 +76,66 @@ public class ButtonHandler {
         }
     }
 
-    @SuppressLint("SetTextI18n")
-    public void btnRun(String mode, TextView roundText, TextView nodeText, TextView ringText,
-                       ProgressBar processBar, int vibTime, String extraTemperature) {
+    public void btnRun(int vibTime, String nodes, boolean isNode, boolean isLeft,
+                       String extraTemperature) {
+        bluetoothManager.addToMessageQueue("T/N/" + extraTemperature);
+        heat = true;
 
-        if (mode.equals("FLOW")) {
-            final int[] node = {1};
-            final int[] progress = {0};
-            processBar.setMax(6);
-
-            Runnable runnable = new Runnable() {
-                @SuppressLint("SetTextI18n")
+        if (isNode) {
+            vibNode(vibTime, nodes);
+            handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    if (node[0] <= 32) {
-                        processBar.setProgress(++progress[0]);
-                        bluetoothManager.addToMessageQueue("M/1/" + node[0]);
-                        node[0] <<= 1;
-
-                        handler.postDelayed(this, vibTime * 1000L);
-                    } else {
-                        bluetoothManager.addToMessageQueue("M/1/0");
-                    }
+                    bluetoothManager.addToMessageQueue("T/F/0");
+                    heat = false;
                 }
-            };
-            handler.post(runnable);
+            }, vibTime * 1000L);
         } else {
-            if (uri == null) {
-                Toast.makeText(context,
-                        "Press Set first", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            bluetoothManager.addToMessageQueue("T/N/" + extraTemperature);
-
-            int curRound = round.getAndIncrement();
-            processBar.setMax(Constants.TEST_ROUNDS);
-            if (curRound < Constants.TEST_ROUNDS) {
-                String ring = trigger.getRing(curRound);
-                String node = trigger.getNode(curRound);
-
-                processBar.setProgress(curRound + 1);
-                roundText.setText("Round: " + (curRound + 1) + " Vibrating");
-                ringText.setText("Ring: " + toBinary(ring, 3));
-                nodeText.setText("Node: " + toBinary(node, 6));
-                String message = "M/" + ring + "/" + node;
-
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        bluetoothManager.addToMessageQueue(message);
-                    }
-                }, 3 * 1000L); // Start Vib 3 sec later
-
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        bluetoothManager.addToMessageQueue("M/0/0");
-                        bluetoothManager.addToMessageQueue("T/F/0");
-                        roundText.setText("Round: " + String.valueOf(curRound + 1) + " Stopped");
-                    }
-                }, vibTime * 1000L);
-            } else {
-                Toast.makeText(context,
-                        "Ten Rounds finished", Toast.LENGTH_SHORT).show();
-            }
-
+            vibFlow(vibTime, isLeft);
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    bluetoothManager.addToMessageQueue("T/F/0");
+                    heat = false;
+                }
+            }, vibTime * 6 * 1000L);
         }
     }
 
-    private String toBinary(String message, int len) {
-        int value = Integer.parseInt(message);
-        StringBuilder builder = new StringBuilder();
+    private void vibNode(int vibTime, String nodes) {
+        String message = "M/1/" + nodes;
+        bluetoothManager.addToMessageQueue(message);
 
-        for (int i = len - 1; i >= 0; i--) {
-            int tmp = 1 << i;
-            if ((tmp & value) != 0) {
-                builder.append("1");
-            } else {
-                builder.append("0");
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                bluetoothManager.addToMessageQueue("M/0/0");
             }
-        }
-        return builder.toString();
+        }, vibTime * 1000L);
+    }
+
+    private void vibFlow(int vibTime, boolean isLeft) {
+        final int[] node = new int[1];
+        if (isLeft) node[0] = 1;
+        else node[0] = 32;
+        final int[] r = {0};
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                if (r[0]++ < 6) {
+                    String message = "M/1/" + node[0];
+                    bluetoothManager.addToMessageQueue(message);
+                    if (isLeft) {
+                        node[0] = node[0] << 1;
+                    } else {
+                        node[0] = node[0] >> 1;
+                    }
+                    handler.postDelayed(this, vibTime * 1000L);
+                } else if (r[0] >= 6) {
+                    bluetoothManager.addToMessageQueue("M/0/0");
+                }
+            }
+        };
+        handler.post(runnable);
     }
 }

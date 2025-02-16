@@ -2,11 +2,13 @@ package com.example.remotecontrol;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.ProgressBar;
+import android.widget.LinearLayout;
+import android.widget.RadioGroup;
 import android.widget.SeekBar;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,11 +22,7 @@ public class MainActivity extends AppCompatActivity
         implements BltManager.BluetoothCallback {
 
     private Button connectButton;
-    private Spinner spinnerGender;
-    private Spinner spinnerMode;
-    private EditText editTextNr;
     private boolean isConnected = false;
-    private ProgressBar processBar;
 
     private ButtonHandler buttonHandler;
 
@@ -37,24 +35,29 @@ public class MainActivity extends AppCompatActivity
 
         Logger logger = Logger.getInstance(this);
         Logger.d("MainActivity started");
-        Button setButton = findViewById(R.id.btn_set);
-        Button vibButton = findViewById(R.id.btn_vib);
+        Button btnVib = findViewById(R.id.btn_vib);
         Button btnHeat = findViewById(R.id.btn_heat);
-        Button runButton = findViewById(R.id.btn_run);
+        Button btnRun = findViewById(R.id.btn_run);
         SeekBar seekBarTemp = findViewById(R.id.skBar_temperature);
 
         EditText vibTimeText = findViewById(R.id.vib_time);
         TextView extraTemperature = findViewById(R.id.extra_Temperature);
         vibTimeText.setText(String.valueOf(Constants.DEFAULT_VIBE_TIME));
 
-        connectButton = findViewById(R.id.btn_connect);
-        spinnerGender = findViewById(R.id.gender);
-        spinnerMode = findViewById(R.id.mode);
-        editTextNr = findViewById(R.id.number);
-        processBar = findViewById(R.id.process);
-        processBar.setMax(Constants.TEST_ROUNDS);
-        processBar.setProgress(0);
+        RadioGroup modes = findViewById(R.id.mode);
+        LinearLayout layoutFlow = findViewById(R.id.layoutFlow);
+        LinearLayout layoutNode = findViewById(R.id.layoutNode);
+        modes.setOnCheckedChangeListener((group, checkedId) -> {
+            if (checkedId == R.id.modeNode) {
+                layoutNode.setVisibility(View.VISIBLE);
+                layoutFlow.setVisibility(View.GONE);
+            } else if (checkedId == R.id.modeFlow) {
+                layoutNode.setVisibility(View.GONE);
+                layoutFlow.setVisibility(View.VISIBLE);
+            }
+        });
 
+        connectButton = findViewById(R.id.btn_connect);
         buttonHandler = new ButtonHandler(this, this);
 
         seekBarTemp.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -77,16 +80,14 @@ public class MainActivity extends AppCompatActivity
             buttonHandler.btnConnection(isConnected);
         });
 
-        setButton.setOnClickListener(v -> {
-            String mode = spinnerMode.getSelectedItem().toString();
-            String gender = spinnerGender.getSelectedItem().toString();
-            String number = editTextNr.getText().toString();
-            buttonHandler.btnSet(mode, gender, number);
-        });
-
-        vibButton.setOnClickListener(v -> {
+        btnVib.setOnClickListener(v -> {
             int vibTime = Integer.parseInt(vibTimeText.getText().toString());
-            buttonHandler.btnVibrate(vibTime);
+            RadioGroup flow = findViewById(R.id.flow);
+            String nodes = getNodes();
+
+            buttonHandler.btnVib(vibTime, nodes,
+                    modes.getCheckedRadioButtonId() == R.id.modeNode,
+                    flow.getCheckedRadioButtonId() == R.id.flowLeft);
         });
 
         btnHeat.setOnClickListener(v -> {
@@ -101,15 +102,16 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        runButton.setOnClickListener(v -> {
-            int vibTime = Integer.parseInt(vibTimeText.getText().toString());
-            String mode = spinnerMode.getSelectedItem().toString();
-            TextView roundText = findViewById(R.id.monitor_round);
-            TextView nodeText = findViewById(R.id.monitor_node);
-            TextView ringText = findViewById(R.id.monitor_ring);
+        btnRun.setOnClickListener(v -> {
             int extraTemp = seekBarTemp.getProgress();
-            buttonHandler.btnRun(mode, roundText, nodeText,
-                    ringText, processBar, vibTime, String.valueOf(extraTemp));
+            int vibTime = Integer.parseInt(vibTimeText.getText().toString());
+            RadioGroup flow = findViewById(R.id.flow);
+            String nodes = getNodes();
+
+            buttonHandler.btnRun(vibTime, nodes,
+                    modes.getCheckedRadioButtonId() == R.id.modeNode,
+                    flow.getCheckedRadioButtonId() == R.id.flowLeft,
+                    String.valueOf(extraTemp));
         });
     }
 
@@ -156,5 +158,23 @@ public class MainActivity extends AppCompatActivity
             updateMonitor(R.id.monitor_temperature,
                     "Temperature: " + number);
         }
+    }
+
+    private String getNodes() {
+        int node = 0;
+        CheckBox nodeI = findViewById(R.id.nodeOne);
+        if (nodeI.isChecked()) node += 1;
+        CheckBox nodeII = findViewById(R.id.nodeTwo);
+        if (nodeII.isChecked()) node += (1 << 1);
+        CheckBox nodeIII = findViewById(R.id.nodeThree);
+        if (nodeIII.isChecked()) node += (1 << 2);
+        CheckBox nodeIV = findViewById(R.id.nodeFour);
+        if (nodeIV.isChecked()) node += (1 << 3);
+        CheckBox nodeV = findViewById(R.id.nodeFive);
+        if (nodeV.isChecked()) node += (1 << 4);
+        CheckBox nodeVI = findViewById(R.id.nodeSix);
+        if (nodeVI.isChecked()) node += (1 << 5);
+
+        return String.valueOf(node);
     }
 }
