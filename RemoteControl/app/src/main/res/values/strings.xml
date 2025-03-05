@@ -18,7 +18,7 @@
     <string name="node">Node</string>
     <string name="heat">Heat</string>
     <string name="vib">Vibrate</string>
-    <string name="vibTime">Vib Time:</string>
+    <string name="vibTime">Vib Time(s):</string>
     <string name="vibNode">Vib Node:</string>
     <string name="one">1</string>
     <string name="two">2</string>

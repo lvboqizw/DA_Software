@@ -55,7 +55,7 @@ public class BltManager {
                 isConnected = true;
                 notifyConnectionStatus(true);
                 checkConnectionStatus();
-                startSending();
+                sendingMessage();
                 receivingMessage();
             } catch (IOException e) {
                 Log.e("BluetoothError", "Connection Failed", e);
@@ -74,10 +74,6 @@ public class BltManager {
         } catch (IOException e) {
             Log.e("BluetoothError","Disconnection Failed", e);
         }
-    }
-
-    public void sendMessage(String message) throws IOException{
-        bluetoothSocket.getOutputStream().write((message + "\n").getBytes());
     }
 
     private void checkConnectionStatus() {
@@ -107,7 +103,7 @@ public class BltManager {
         sendQueue.offer(bag);
     }
 
-    private void startSending() {
+    private void sendingMessage() {
         executor.execute(() -> {
             while (!Thread.currentThread().isInterrupted()) {
                 try {
@@ -130,7 +126,7 @@ public class BltManager {
                 int maxRetries = 3;
 
                 while (!ackReceived && retries < maxRetries) {
-                    sendMessage(message);
+                    bluetoothSocket.getOutputStream().write((message + "\n").getBytes());
                     ackReceived = waitAck(1000);
                     if (!ackReceived) {
                         retries ++;
@@ -194,7 +190,7 @@ public class BltManager {
         }
     }
 
-    int getCheckSum(String message) {
+    private int getCheckSum(String message) {
         int checksum = 0;
         for (int i = 0; i < message.length(); i ++) {
             checksum += message.charAt(i);

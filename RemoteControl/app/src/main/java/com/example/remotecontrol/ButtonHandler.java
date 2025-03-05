@@ -1,28 +1,17 @@
 package com.example.remotecontrol;
 
-import android.content.Context;
-import android.net.Uri;
 import android.os.Handler;
-import android.widget.Toast;
-
-import com.google.gson.Gson;
-
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ButtonHandler {
 
-    private final Context context;
     private final BltManager bluetoothManager;
-    private final Trigger trigger;
-    private Uri uri;
     private final AtomicInteger round = new AtomicInteger();
     private boolean heat = false;
     private final Handler handler = new Handler();
 
-    public ButtonHandler(Context context, BltManager.BluetoothCallback bluetoothCallback) {
-        this.context = context;
+    public ButtonHandler(BltManager.BluetoothCallback bluetoothCallback) {
         bluetoothManager = new BltManager(bluetoothCallback);
-        trigger = new Trigger();
         round.set(0);
     }
 
@@ -32,28 +21,6 @@ public class ButtonHandler {
         } else {
             bluetoothManager.disconnect();
         }
-    }
-
-    public void btnSet(String mode, String gender, String number) {
-        String filename;
-        if (mode.equals("Test")) {
-            filename =  "0_NONE_TEST";
-        } else {
-            if (number.isEmpty()) {
-                Toast.makeText(context,
-                        "Missing Number", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            filename = number + "_" + gender + "_" + mode;
-        }
-
-        FileUtils fileUtils = new FileUtils(context);
-        uri = fileUtils.getUri(filename + ".json");
-        trigger.generateTriggerList(mode);
-        Gson gson = new Gson();
-        String json = gson.toJson(trigger);
-        fileUtils.appendToUri(uri, json);
-        round.set(0);
     }
 
     public void btnVib(int vibTime, String nodes, boolean isNode, boolean isLeft) {

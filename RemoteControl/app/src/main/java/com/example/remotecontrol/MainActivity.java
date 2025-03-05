@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity
         });
 
         connectButton = findViewById(R.id.btn_connect);
-        buttonHandler = new ButtonHandler(this, this);
+        buttonHandler = new ButtonHandler(this);
 
         seekBarTemp.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
