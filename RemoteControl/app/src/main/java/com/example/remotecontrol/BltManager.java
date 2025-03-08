@@ -9,6 +9,7 @@ import android.os.Looper;
 import android.util.Log;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.UUID;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.ExecutorService;
@@ -33,7 +34,7 @@ public class BltManager {
 
     private Handler handler = new Handler(Looper.getMainLooper());
     private final BlockingDeque<String> sendQueue = new LinkedBlockingDeque<>();
-    private final ExecutorService executor = Executors.newSingleThreadExecutor();
+    private final ExecutorService executor = Executors.newFixedThreadPool(2);
     private final Object lock = new Object();
     private boolean ackReceivedFlag = false;
 
@@ -46,8 +47,8 @@ public class BltManager {
     public void connect(String macAddress) {
         bluetoothDevice = bluetoothAdapter.getRemoteDevice(macAddress);
 
-        new Thread(() -> {
-            try {
+        executor.execute(() -> {
+            try{
                 bluetoothSocket = bluetoothDevice
                         .createRfcommSocketToServiceRecord(MY_UUID);
                 bluetoothSocket.connect();
@@ -57,11 +58,11 @@ public class BltManager {
                 checkConnectionStatus();
                 sendingMessage();
                 receivingMessage();
-            } catch (IOException e) {
+            } catch (Exception e) {
                 Log.e("BluetoothError", "Connection Failed", e);
                 notifyConnectionStatus(false);
             }
-        }).start();
+        });
     }
 
     public void disconnect() {
@@ -146,35 +147,37 @@ public class BltManager {
     }
 
     private void receivingMessage() {
-        new Thread(() -> {
-            try {
-                while (!Thread.currentThread().isInterrupted()){
-                    if (bluetoothSocket.getInputStream().available() > 0) {
-                        byte[] buffer = new byte[1024];
-                        int bytesRead = bluetoothSocket.getInputStream().read(buffer);
-                        String response = new String(buffer, 0, bytesRead).trim();
-
-                        synchronized (lock) {
-                            switch (response) {
-                                case "A":
-                                    ackReceivedFlag = true;
-                                    lock.notifyAll();
-                                    break;
-                                case "R":
-                                    ackReceivedFlag = false;
-                                    lock.notifyAll();;
-                                    break;
-                                default:
-                                    handler.post(() -> callback.onMessageReceived(response));
-                                    break;
-                            }
-                        }
-                    }
+        try {
+            InputStream inputStream = bluetoothSocket.getInputStream();
+            while (!Thread.currentThread().isInterrupted()) {
+                byte[] buffer = new byte[1024];
+                int bytesRead = inputStream.read(buffer);
+                if (bytesRead > 0) {
+                    String response = new String(buffer, 0, bytesRead).trim();
+                    handleReceivedMessage(response);
                 }
-            } catch (IOException e) {
-                Logger.e("Error receiving data: " + e.getMessage());
             }
-        }).start();
+        } catch (IOException e) {
+            Logger.e("Error receiving data: " + e.getMessage());
+        }
+    }
+
+    private void handleReceivedMessage(String response) {
+        synchronized (lock) {
+            switch (response) {
+                case "A":
+                    ackReceivedFlag = true;
+                    lock.notifyAll();
+                    break;
+                case "R":
+                    ackReceivedFlag = false;
+                    lock.notifyAll();;
+                    break;
+                default:
+                    handler.post(() -> callback.onMessageReceived(response));
+                    break;
+            }
+        }
     }
 
     private boolean waitAck(long timeout) {
